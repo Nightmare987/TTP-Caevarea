@@ -5,7 +5,7 @@ const completeSchema = require("../../Schemas.js/completeSchema");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("check")
-    .setDescription("Check all tryouts for a recruit")
+    .setDescription("See all recruits or check tryouts for a specific one")
     .addUserOption((option) =>
       option
         .setName("recruit")

@@ -27,6 +27,7 @@ module.exports = {
     const memRecruit = interaction.options.getMember("recruit");
     const recruitID = recruit.id;
     const recruitName = recruit.username;
+    const memRecruitName = memRecruit.displayName;
     const recruitIcon = recruit.avatarURL();
 
     const recruiterID = interaction.user.id;
@@ -59,7 +60,7 @@ module.exports = {
 
       const embed = new EmbedBuilder()
         .setColor("#ffd700")
-        .setTitle(`${recruitName}'s Tryout Termination Confirmation`)
+        .setTitle(`${memRecruitName}'s Tryout Termination Confirmation`)
         .setDescription(
           `Confirm termination for ${recruit}'s tryout and ${tryoutAmount} session(s). This action cannot be undone.`
         )
@@ -97,6 +98,7 @@ module.exports = {
       collector.on("collect", (i) => {
         if (i.customId === "confirm") {
           data.delete();
+          memRecruit.roles.remove("1129587595211460669");
           confirmMessage.delete();
           const confirmEmbed = new EmbedBuilder()
             .setColor("#ffd700")

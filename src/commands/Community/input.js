@@ -41,6 +41,7 @@ module.exports = {
     const member = interaction.member;
 
     const recruit = interaction.options.getUser("recruit");
+    const memRecruit = interaction.options.getMember("recruit");
     const recruitID = recruit.id;
     const recruitName = recruit.username;
     const recruitIcon = recruit.avatarURL();
@@ -89,7 +90,7 @@ module.exports = {
         embeds: [redEmbed],
         ephemeral: true,
       });
-    } else if (!member.roles.cache.has("1129587595211460669")) {
+    } else if (!memRecruit.roles.cache.has("1129587595211460669")) {
       redEmbed.setDescription(
         `**${recruitName}** is not a recruit. Use </new:1129615832218095666> to make them one`
       );
