@@ -54,6 +54,9 @@ module.exports = {
     const strategy = interaction.options.getInteger("strategy");
     const total = vibe + skill + strategy;
 
+    //// MAKE A NEW COMMAND FOR CREATING A NEW RECRUIT(ADD ROLE) AND MAKE INPUT CHECK IF THE USER HAS THAT ROLE
+    //// ALSO MAKE THE COMPLETE COMMAND REMOVE THE ROLE AND SEND A DM EMBED, GIVE NEW ROLE, ETC
+
     let data = await recruitSchema.findOne({
       RecruitID: recruitID,
     });
@@ -70,14 +73,33 @@ module.exports = {
       tryoutAmount = data.Tryouts.length;
     }
 
-    if (member.roles.cache.has((role) => role.id === "1127338436571955230")) {
+    const redEmbed = new EmbedBuilder()
+      .setColor("#a42a04")
+      .setDescription(`**${recruitName}** is already a recruit`);
+
+    const greenEmbed = new EmbedBuilder()
+      .setColor("#ffd700")
+      .setDescription(`**${recruitName}** is already a recruit`);
+
+    if (!member.roles.cache.has("1127338436571955230")) {
+      redEmbed.setDescription(
+        "You do not have permsission to use this command"
+      );
       interaction.reply({
-        content: "You do not have permsission to use this command",
+        embeds: [redEmbed],
         ephemeral: true,
       });
+    } else if (!member.roles.cache.has("1129587595211460669")) {
+      redEmbed.setDescription(
+        `**${recruitName}** is not a recruit. Use </new:1129615832218095666> to make them one`
+      );
+      interaction.reply({ embeds: [redEmbed], ephemeral: true });
     } else if (tryoutAmount === 3) {
+      redEmbed.setDescription(
+        `**${recruitName}** already has 3 sessions inputted`
+      );
       interaction.reply({
-        content: `${recruitName} already has 3 sessions inputted`,
+        embeds: [redEmbed],
         ephemeral: true,
       });
     } else {

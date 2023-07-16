@@ -24,6 +24,7 @@ module.exports = {
     const member = interaction.member;
 
     const recruit = interaction.options.getUser("recruit");
+    const memRecruit = interaction.options.getMember("recruit");
     const recruitID = recruit.id;
     const recruitName = recruit.username;
     const recruitIcon = recruit.avatarURL();
@@ -36,16 +37,23 @@ module.exports = {
       RecruitID: recruitID,
     });
 
-    if (member.roles.cache.has((role) => role.id === "1127338436571955230")) {
+    if (!member.roles.cache.has("1127338436571955230")) {
       interaction.reply({
         content: "You do not have permsission to use this command",
         ephemeral: true,
       });
     } else if (!data) {
-      interaction.reply({
-        content: `**${recruit}** is not a recruit`,
-        ephemeral: true,
-      });
+      if (memRecruit.roles.cache.has("1129587595211460669")) {
+        memRecruit.roles.remove("1129587595211460669");
+        interaction.reply(
+          `${recruit} is no longer a recruit. They did not have any tryout sessions`
+        );
+      } else {
+        interaction.reply({
+          content: `**${recruit}** is not a recruit`,
+          ephemeral: true,
+        });
+      }
     } else {
       const tryoutAmount = data.Tryouts.length;
 
@@ -92,14 +100,19 @@ module.exports = {
           confirmMessage.delete();
           const confirmEmbed = new EmbedBuilder()
             .setColor("#ffd700")
-            .setDescription(`${recruit} tryouts have been terminated by <@${interaction.user.id}>`)
+            .setDescription(
+              `${recruit}'s tryouts have been terminated by <@${interaction.user.id}>`
+            )
             .setFooter({
               text: "Created By: xNightmid",
               iconURL:
                 "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
             });
-          channel.send({ content: '<@&1127338436571955230>', embeds: [confirmEmbed] });
-        } 
+          channel.send({
+            content: "<@&1127338436571955230>",
+            embeds: [confirmEmbed],
+          });
+        }
         if (i.customId === "cancel") {
           const cancelEmbed = new EmbedBuilder()
             .setColor("#ffd700")
@@ -109,7 +122,11 @@ module.exports = {
               iconURL:
                 "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
             });
-          confirmMessage.edit({ embeds: [cancelEmbed], components: [], ephemeral: true });
+          confirmMessage.edit({
+            embeds: [cancelEmbed],
+            components: [],
+            ephemeral: true,
+          });
         }
       });
     }

@@ -25,7 +25,7 @@ module.exports = {
 
     const datta = await completeSchema.findOne({ Something: "not empty" });
 
-    if (member.roles.cache.has((role) => role.id === "1127338436571955230")) {
+    if (!member.roles.cache.has("1127338436571955230")) {
       interaction.reply({
         content: "You do not have permsission to use this command",
         ephemeral: true,

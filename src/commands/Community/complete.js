@@ -28,7 +28,7 @@ module.exports = {
       RecruitID: recruitID,
     });
 
-    if (member.roles.cache.has((role) => role.id === "1127338436571955230")) {
+    if (!member.roles.cache.has("1127338436571955230")) {
       interaction.reply({
         content: "You do not have permsission to use this command",
         ephemeral: true,
@@ -51,7 +51,7 @@ module.exports = {
 
       const embed = new EmbedBuilder()
         .setColor("#ffd700")
-        .setTitle(`Final Tryout for ${recruitName}`)
+        .setTitle(`Final Tryout Results for ${recruitName}`)
         .setAuthor({
           name: `${recruiterName}`,
           iconURL: `${recruiterIcon}`,
