@@ -23,6 +23,10 @@ module.exports = {
 
     const icon = interaction.guild.iconURL();
 
+    const role = interaction.guild.roles.cache
+      .get("1129587595211460669")
+      .members.map((r) => `<@${r.user.id}>`).join('\n');
+
     const datta = await completeSchema.findOne({ Something: "not empty" });
 
     if (!member.roles.cache.has("1127338436571955230")) {
@@ -33,16 +37,16 @@ module.exports = {
     } else if (recruit === null) {
       if (datta.Recruits.length === 0) {
         interaction.reply({
-          content: "There are no recruits at the current moment",
+          content: "There are currently no recruits",
           ephemeral: true,
         });
       } else {
         const contents = datta.Recruits;
         let description = "";
         for (const content of contents) {
-          const recruit = content.RecruitID;
+          const recruitt = content.RecruitID;
 
-          description += `\n<@${recruit}>`;
+          description += `\n<@${recruitt}>`;
         }
         const embed = new EmbedBuilder()
           .setColor("#ffd700")
@@ -70,7 +74,7 @@ module.exports = {
       });
       if (!data) {
         interaction.reply({
-          content: `**${recruitName}** is not a recruit. Use </tryout-input:1127321316249317427> to make them one`,
+          content: `**${recruitName}** is not a recruit or does not have any tryout sessions`,
           ephemeral: true,
         });
       } else {

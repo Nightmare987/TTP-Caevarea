@@ -37,6 +37,9 @@ module.exports = {
     const data = await recruitSchema.findOne({
       RecruitID: recruitID,
     });
+    const datta = await completeSchema.findOne({
+      Something: "not empty",
+    });
 
     if (!member.roles.cache.has("1127338436571955230")) {
       interaction.reply({
@@ -45,6 +48,7 @@ module.exports = {
       });
     } else if (!data) {
       if (memRecruit.roles.cache.has("1129587595211460669")) {
+        datta.findOneAndDelete({ "Recruits.RecruitID": recruitID });
         memRecruit.roles.remove("1129587595211460669");
         interaction.reply(
           `${recruit} is no longer a recruit. They did not have any tryout sessions`
@@ -98,6 +102,7 @@ module.exports = {
       collector.on("collect", (i) => {
         if (i.customId === "confirm") {
           data.delete();
+          datta.findOneAndDelete({ "Recruits.RecruitID": recruitID });
           memRecruit.roles.remove("1129587595211460669");
           confirmMessage.delete();
           const confirmEmbed = new EmbedBuilder()

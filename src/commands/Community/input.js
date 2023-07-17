@@ -1,6 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const recruitSchema = require("../../Schemas.js/recruits");
-const completeSchema = require("../../Schemas.js/completeSchema");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -61,9 +60,6 @@ module.exports = {
     let data = await recruitSchema.findOne({
       RecruitID: recruitID,
     });
-    let datta = await completeSchema.findOne({
-      Something: "not empty",
-    });
 
     const channelID = interaction.channel.id;
 
@@ -76,11 +72,9 @@ module.exports = {
 
     const redEmbed = new EmbedBuilder()
       .setColor("#a42a04")
-      .setDescription(`**${recruitName}** is already a recruit`);
 
     const greenEmbed = new EmbedBuilder()
       .setColor("#ffd700")
-      .setDescription(`**${recruitName}** is already a recruit`);
 
     if (!member.roles.cache.has("1127338436571955230")) {
       redEmbed.setDescription(
@@ -126,11 +120,6 @@ module.exports = {
             },
           ],
         });
-        const recruitt = {
-          RecruitID: recruitID,
-        };
-        datta.Recruits.push(recruitt);
-        datta.save();
       } else {
         const recruitTryouts = {
           TryoutNum: tryoutAmount + 1,
@@ -177,7 +166,7 @@ module.exports = {
         let totalTotal =
           data.Tryouts[0].Total + data.Tryouts[1].Total + data.Tryouts[2].Total;
         await channel.send({
-          content: `<@&1127338436571955230> **${recruitName}** has completed their third session and finished with a total score of **${totalTotal}**. Use </tryout-check:1127738924392005692> to see their final score.`,
+          content: `<@&1127338436571955230>\n **${recruitName}** has completed their third session and finished with a total score of **${totalTotal}**. Use </check:1127738924392005692> to see their final data.`,
         });
       }
     }

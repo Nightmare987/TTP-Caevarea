@@ -35,7 +35,7 @@ module.exports = {
       });
     } else if (!data) {
       interaction.reply({
-        content: `${recruitName} is not a recruit. Use </tryout-input:1127321316249317427> to make them one`,
+        content: `${recruitName} is not a recruit, or does not have any tryout sessions`,
         ephemeral: true,
       });
     } else if (data.Tryouts.length != 3) {
@@ -43,7 +43,6 @@ module.exports = {
         content: `**${recruitName}** has not completed their tryout. They currently have **${data.Tryouts.length}** sessions completed.`,
       });
     } else {
-      const tryoutAmount = data.Tryouts.length;
       const totalTotal =
         data.Tryouts[0].Total + data.Tryouts[1].Total + data.Tryouts[2].Total;
 

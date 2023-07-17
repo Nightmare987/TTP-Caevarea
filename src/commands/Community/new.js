@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const completeSchema = require("../../Schemas.js/completeSchema");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -26,6 +27,9 @@ module.exports = {
 
     //// MAKE A NEW COMMAND FOR CREATING A NEW RECRUIT(ADD ROLE) AND MAKE INPUT CHECK IF THE USER HAS THAT ROLE
     //// ALSO MAKE THE COMPLETE COMMAND REMOVE THE ROLE AND SEND A DM EMBED, GIVE NEW ROLE, ETC
+    let datta = await completeSchema.findOne({
+      Something: "not empty",
+    });
 
     if (!member.roles.cache.has("1127338436571955230")) {
       interaction.reply({
@@ -38,7 +42,15 @@ module.exports = {
         .setDescription(`**${recruitName}** is already a recruit`);
       interaction.reply({ embeds: [embed] });
     } else {
+
+      const recruitt = {
+        RecruitID: recruitID,
+      };
+      datta.Recruits.push(recruitt);
+      datta.save();
+
       recruit.roles.add(roleID);
+
       const embed = new EmbedBuilder()
         .setDescription(`**${recruitName}** has been added as a recruit`)
         .setColor("#ffd700");
