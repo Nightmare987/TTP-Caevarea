@@ -7,7 +7,7 @@ const {
   ComponentType,
 } = require("discord.js");
 const recruitSchema = require("../../Schemas.js/recruits");
-const completeSchema = require("../../Schemas.js/completeSchema");
+const { values } = require("../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -37,25 +37,21 @@ module.exports = {
     const data = await recruitSchema.findOne({
       RecruitID: recruitID,
     });
-    const datta = await completeSchema.findOne({
-      Something: "not empty",
-    });
 
-    if (!member.roles.cache.has("1127338436571955230")) {
+    if (!member.roles.cache.has(values.recruiterRole)) {
       interaction.reply({
         content: "You do not have permsission to use this command",
         ephemeral: true,
       });
     } else if (!data) {
-      if (memRecruit.roles.cache.has("1129587595211460669")) {
-        datta.findOneAndDelete({ "Recruits.RecruitID": recruitID });
-        memRecruit.roles.remove("1129587595211460669");
+      if (memRecruit.roles.cache.has(values.recruitRole)) {
+        memRecruit.roles.remove(values.recruitRole);
         interaction.reply(
           `${recruit} is no longer a recruit. They did not have any tryout sessions`
         );
       } else {
         interaction.reply({
-          content: `**${recruit}** is not a recruit`,
+          content: `**${recruit}** does not have the <@&1129587595211460669> role`,
           ephemeral: true,
         });
       }
@@ -102,8 +98,7 @@ module.exports = {
       collector.on("collect", (i) => {
         if (i.customId === "confirm") {
           data.delete();
-          datta.findOneAndDelete({ "Recruits.RecruitID": recruitID });
-          memRecruit.roles.remove("1129587595211460669");
+          memRecruit.roles.remove(values.recruitRole);
           confirmMessage.delete();
           const confirmEmbed = new EmbedBuilder()
             .setColor("#ffd700")
@@ -116,20 +111,22 @@ module.exports = {
                 "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
             });
           channel.send({
-            content: "<@&1127338436571955230>",
+            content: `<@&${values.recruiterRole}>`,
             embeds: [confirmEmbed],
           });
         }
         if (i.customId === "cancel") {
           const cancelEmbed = new EmbedBuilder()
             .setColor("#ffd700")
-            .setDescription(`Termination for ${recruit} has been cancelled`)
+            .setDescription(
+              `Termination for ${recruit}'s tryout has been cancelled`
+            )
             .setFooter({
               text: "Created By: xNightmid",
               iconURL:
                 "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
             });
-          confirmMessage.edit({
+          interaction.editReply({
             embeds: [cancelEmbed],
             components: [],
             ephemeral: true,

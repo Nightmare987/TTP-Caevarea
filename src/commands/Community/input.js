@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const recruitSchema = require("../../Schemas.js/recruits");
+const { values } = require("../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -70,13 +71,11 @@ module.exports = {
       tryoutAmount = data.Tryouts.length;
     }
 
-    const redEmbed = new EmbedBuilder()
-      .setColor("#a42a04")
+    const redEmbed = new EmbedBuilder().setColor("#a42a04");
 
-    const greenEmbed = new EmbedBuilder()
-      .setColor("#ffd700")
+    const greenEmbed = new EmbedBuilder().setColor("#ffd700");
 
-    if (!member.roles.cache.has("1127338436571955230")) {
+    if (!member.roles.cache.has(values.recruiterRole)) {
       redEmbed.setDescription(
         "You do not have permsission to use this command"
       );
@@ -84,7 +83,7 @@ module.exports = {
         embeds: [redEmbed],
         ephemeral: true,
       });
-    } else if (!memRecruit.roles.cache.has("1129587595211460669")) {
+    } else if (!memRecruit.roles.cache.has(values.recruitRole)) {
       redEmbed.setDescription(
         `**${recruitName}** is not a recruit. Use </new:1129615832218095666> to make them one`
       );
@@ -135,6 +134,16 @@ module.exports = {
       }
       data.save();
 
+      console.log(tryoutAmount);
+
+      if ((tryoutAmount = 0)) {
+        memRecruit.roles.add(values.TS1Role);
+      } else if ((tryoutAmount = 1)) {
+        memRecruit.roles.add(values.TS2Role);
+      } else {
+        memRecruit.roles.add(values.TS3Role);
+      }
+
       const embed = new EmbedBuilder()
         .setColor("#ffd700")
         .setTitle(`New Session Input for ${recruitName}`)
@@ -166,7 +175,7 @@ module.exports = {
         let totalTotal =
           data.Tryouts[0].Total + data.Tryouts[1].Total + data.Tryouts[2].Total;
         await channel.send({
-          content: `<@&1127338436571955230>\n **${recruitName}** has completed their third session and finished with a total score of **${totalTotal}**. Use </check:1127738924392005692> to see their final data.`,
+          content: `<@&${values.recruiterRole}>\n**${recruitName}** has completed their third session and finished with a total score of **${totalTotal}**. Use </check:1128111165764010076> to see their final data.`,
         });
       }
     }

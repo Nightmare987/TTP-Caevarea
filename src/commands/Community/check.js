@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const recruitSchema = require("../../Schemas.js/recruits");
-const completeSchema = require("../../Schemas.js/completeSchema");
+const { values } = require("../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -10,6 +10,7 @@ module.exports = {
       option
         .setName("recruit")
         .setDescription("The recruit to check scores for")
+        .setRequired(true)
     ),
 
   async execute(interaction) {
@@ -23,48 +24,11 @@ module.exports = {
 
     const icon = interaction.guild.iconURL();
 
-    const role = interaction.guild.roles.cache
-      .get("1129587595211460669")
-      .members.map((r) => `<@${r.user.id}>`).join('\n');
-
-    const datta = await completeSchema.findOne({ Something: "not empty" });
-
-    if (!member.roles.cache.has("1127338436571955230")) {
+    if (!member.roles.cache.has(values.recruiterRole)) {
       interaction.reply({
         content: "You do not have permsission to use this command",
         ephemeral: true,
       });
-    } else if (recruit === null) {
-      if (datta.Recruits.length === 0) {
-        interaction.reply({
-          content: "There are currently no recruits",
-          ephemeral: true,
-        });
-      } else {
-        const contents = datta.Recruits;
-        let description = "";
-        for (const content of contents) {
-          const recruitt = content.RecruitID;
-
-          description += `\n<@${recruitt}>`;
-        }
-        const embed = new EmbedBuilder()
-          .setColor("#ffd700")
-          .setTitle(`Current Recruits`)
-          .setAuthor({
-            name: `${recruiterName}`,
-            iconURL: `${recruiterIcon}`,
-          })
-          .setDescription(`${description}`)
-          .setThumbnail(`${icon}`)
-          .setFooter({
-            text: "Created By: xNightmid",
-            iconURL:
-              "https://cdn.discordapp.com/attachments/1120117446922215425/1120530224677920818/NMD-logo_less-storage.png",
-          });
-
-        interaction.reply({ embeds: [embed], ephemeral: true });
-      }
     } else {
       const recruitID = recruit.id;
       const recruitName = recruit.username;
@@ -114,7 +78,7 @@ module.exports = {
 
         for (const content of contents) {
           const tryoutNum = content.TryoutNum;
-          const recruiterNameData = content.RecruiterName;
+          const recruiterIdData = content.RecruiterID;
           const tryoutDate = content.Date;
           const vibe = content.Vibe;
           const skill = content.Skill;
@@ -127,7 +91,7 @@ module.exports = {
             { name: "Date", value: `**${tryoutDate}**`, inline: true },
             {
               name: "Recruiter",
-              value: `**${recruiterNameData}**`,
+              value: `<@${recruiterIdData}>`,
               inline: true,
             },
             { name: "Vibe", value: `${vibe}`, inline: true },

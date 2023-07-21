@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const recruitSchema = require("../../Schemas.js/recruits");
+const { values } = require("../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -10,12 +11,22 @@ module.exports = {
         .setName("recruit")
         .setDescription("The recruit to complete the tryout for")
         .setRequired(true)
+    )
+    .addBooleanOption((option) =>
+      option
+        .setName("passed")
+        .setDescription("If the recruit has passed the tryout process, or not")
+        .setRequired(true)
     ),
 
-  async execute(interaction) {
+  async execute(interaction, client) {
     const member = interaction.member;
 
+    const passed = interaction.options.getBoolean("passed");
+    const channelSend = client.channels.cache.get(interaction.channel.id);
+
     const recruit = interaction.options.getUser("recruit");
+    const memRecruit = interaction.options.getMember("recruit");
     const recruitID = recruit.id;
     const recruitName = recruit.username;
     const recruitIcon = recruit.avatarURL();
@@ -28,7 +39,7 @@ module.exports = {
       RecruitID: recruitID,
     });
 
-    if (!member.roles.cache.has("1127338436571955230")) {
+    if (!member.roles.cache.has(values.recruiterRole)) {
       interaction.reply({
         content: "You do not have permsission to use this command",
         ephemeral: true,
@@ -82,10 +93,19 @@ module.exports = {
           { name: "Session Total:", value: `${total}` }
         );
       }
+      let status;
+      if (passed === false) {
+        status = "Denied";
+      } else {
+        status = "Accepted";
+      }
       const totalEmbed = new EmbedBuilder()
         .setColor("#ffd700")
-        .setTitle("Final Tryout Score")
-        .setDescription(`**${totalTotal}**`)
+        .setTitle("Final Tryout Score and Status")
+        .addFields(
+          { name: "Tryout Total", value: `${totalTotal}`, inline: true },
+          { name: "Tryout Status", value: `**${status}**`, inline: true }
+        )
         .setFooter({
           text: "Created By: xNightmid",
           iconURL:
@@ -101,6 +121,28 @@ module.exports = {
         fetchReply: true,
       });
       final.pin();
+
+      memRecruit.roles.remove(values.recruitRole);
+
+      const dmEmbed = new EmbedBuilder()
+        .setColor("#4169E1")
+        .setTitle("TTP TRYOUT COMPLETED")
+        .setFooter({
+          text: "Created By: xNightmid",
+          iconURL:
+            "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
+        });
+      if (passed === false) {
+        dmEmbed.setDescription(
+          "We are sorry to say that you have been denied of becoming a member after completing your tryout"
+        );
+      } else {
+        memRecruit.roles.add(values.memberRole);
+        dmEmbed.setDescription(
+          "We are glad to say that you have been accepted as a member of TTP. Welcome to the family"
+        );
+      }
+      client.users.send(recruitID, { embeds: [dmEmbed] });
     }
   },
 };

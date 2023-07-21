@@ -32,7 +32,6 @@ const client = new Client({
   partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 });
 const recruitSchema = require("./Schemas.js/recruits");
-const completeSchema = require("./Schemas.js/completeSchema");
 
 client.commands = new Collection();
 
@@ -60,5 +59,30 @@ client.on("guildCreate", async (guild) => {
     name: "Better Caevarea",
     color: "#4169E1",
   });
+  
+  await guild.roles.create({
+    name: "-------------T-Sessions-------------",
+    color: "#C0C0C0",
+    mentionable: false,
+  });
+
+  await guild.roles.create({
+    name: "1 T-Session",
+    color: "#C0C0C0",
+    mentionable: false,
+  });
+
+  await guild.roles.create({
+    name: "2 T-Sessions",
+    color: "#C0C0C0",
+    mentionable: false,
+  });
+
+  await guild.roles.create({
+    name: "3 T-Sessions",
+    color: "#C0C0C0",
+    mentionable: false,
+  });
+
   guild.members.addRole({ user: "1127094913746612304", role: role });
 });

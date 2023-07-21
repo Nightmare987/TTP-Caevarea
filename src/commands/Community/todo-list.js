@@ -1,4 +1,4 @@
-const { EmbedBuilder, SlashCommandBuilder } = require("discord.js");
+const { EmbedBuilder, SlashCommandBuilder, blockQuote } = require("discord.js");
 const todoSchema = require("../../Schemas.js/todo");
 
 module.exports = {
@@ -38,7 +38,6 @@ module.exports = {
     ),
 
   async execute(interaction) {
-
     const { options, user, member } = interaction;
 
     const sub = options.getSubcommand(["add", "list", "complete", "clear"]);
@@ -79,7 +78,10 @@ module.exports = {
                 .setDescription(`⏳ Adding **${task}** to your to-do list...`)
                 .setColor("#ffd700");
 
-              await interaction.reply({ embeds: [loadembeds], ephemeral: true });
+              await interaction.reply({
+                embeds: [loadembeds],
+                ephemeral: true,
+              });
 
               const asdfembed = new EmbedBuilder()
                 .setColor("#ffd700")
@@ -106,7 +108,10 @@ module.exports = {
                 .setDescription(`⏳ Fetching your to-do list...`)
                 .setColor("#ffd700");
 
-              await interaction.reply({ embeds: [loadembeds], ephemeral: true });
+              await interaction.reply({
+                embeds: [loadembeds],
+                ephemeral: true,
+              });
 
               const nembed = new EmbedBuilder()
                 .setColor("#ffd700")
@@ -115,8 +120,8 @@ module.exports = {
                   `${data.Content.map(
                     (w, i) =>
                       `> Task #${i + 1}:
-                                    **${w.Task}**
-                            *Date Added: ${w.Date}*\n\n
+                                    > **${w.Task}**
+                            > *Date Added: ${w.Date}*\n\n
                             `
                   ).join(" ")}`
                 )
@@ -147,7 +152,10 @@ module.exports = {
                 )
                 .setColor("#ffd700");
 
-              await interaction.reply({ embeds: [loadembedsf], ephemeral: true });
+              await interaction.reply({
+                embeds: [loadembedsf],
+                ephemeral: true,
+              });
 
               data.Content.splice(taskId, 1);
               data.save();
@@ -162,7 +170,10 @@ module.exports = {
                 .setDescription(`⏳ Checking your to-do list...`)
                 .setColor("#ffd700");
 
-              await interaction.reply({ embeds: [loadembedsff], ephemeral: true });
+              await interaction.reply({
+                embeds: [loadembedsff],
+                ephemeral: true,
+              });
 
               const nodt = new EmbedBuilder()
                 .setColor("#a42a04")
@@ -184,7 +195,10 @@ module.exports = {
                 .setDescription(`⏳ Clearing your to-do list...`)
                 .setColor("#ffd700");
 
-              await interaction.reply({ embeds: [loadembedsff], ephemeral: true });
+              await interaction.reply({
+                embeds: [loadembedsff],
+                ephemeral: true,
+              });
 
               await todoSchema.findOneAndDelete({
                 nUserID: interaction.member.id,
@@ -193,13 +207,19 @@ module.exports = {
                 .setColor("#ffd700")
                 .setDescription(`✔ Success!\n➥ Deleted your to-do list!`);
 
-              await interaction.editReply({ embeds: [asdfasdf], ephemeral: true });
+              await interaction.editReply({
+                embeds: [asdfasdf],
+                ephemeral: true,
+              });
             } else {
               const loademdbedsff = new EmbedBuilder()
                 .setDescription(`⏳ Checking your to-do list...`)
                 .setColor("#ffd700");
 
-              await interaction.reply({ embeds: [loademdbedsff], ephemeral: true });
+              await interaction.reply({
+                embeds: [loademdbedsff],
+                ephemeral: true,
+              });
 
               const ssss = new EmbedBuilder()
                 .setDescription(`❗\`You have no to-do list to clear!\``)
