@@ -46,6 +46,10 @@ module.exports = {
     } else if (!data) {
       if (memRecruit.roles.cache.has(values.recruitRole)) {
         memRecruit.roles.remove(values.recruitRole);
+        memRecruit.roles.remove(values.tryoutsHeaderRole);
+        memRecruit.roles.remove(values.TS1Role);
+        memRecruit.roles.remove(values.TS2Role);
+        memRecruit.roles.remove(values.TS3Role);
         interaction.reply(
           `${recruit} is no longer a recruit. They did not have any tryout sessions`
         );
@@ -98,18 +102,19 @@ module.exports = {
       collector.on("collect", (i) => {
         if (i.customId === "confirm") {
           data.delete();
+
           memRecruit.roles.remove(values.recruitRole);
+          memRecruit.roles.remove(values.tryoutsHeaderRole);
+          memRecruit.roles.remove(values.TS1Role);
+          memRecruit.roles.remove(values.TS2Role);
+          memRecruit.roles.remove(values.TS3Role);
+
           confirmMessage.delete();
           const confirmEmbed = new EmbedBuilder()
             .setColor("#ffd700")
             .setDescription(
               `${recruit}'s tryouts have been terminated by <@${interaction.user.id}>`
-            )
-            .setFooter({
-              text: "Created By: xNightmid",
-              iconURL:
-                "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
-            });
+            );
           channel.send({
             content: `<@&${values.recruiterRole}>`,
             embeds: [confirmEmbed],

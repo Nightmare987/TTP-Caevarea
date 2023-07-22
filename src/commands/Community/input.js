@@ -134,11 +134,9 @@ module.exports = {
       }
       data.save();
 
-      console.log(tryoutAmount);
-
-      if ((tryoutAmount = 0)) {
+      if (tryoutAmount === 0) {
         memRecruit.roles.add(values.TS1Role);
-      } else if ((tryoutAmount = 1)) {
+      } else if (tryoutAmount === 1) {
         memRecruit.roles.add(values.TS2Role);
       } else {
         memRecruit.roles.add(values.TS3Role);

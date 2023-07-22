@@ -123,6 +123,10 @@ module.exports = {
       final.pin();
 
       memRecruit.roles.remove(values.recruitRole);
+      memRecruit.roles.remove(values.tryoutsHeaderRole);
+      memRecruit.roles.remove(values.TS1Role);
+      memRecruit.roles.remove(values.TS2Role);
+      memRecruit.roles.remove(values.TS3Role);
 
       const dmEmbed = new EmbedBuilder()
         .setColor("#4169E1")
