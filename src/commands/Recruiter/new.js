@@ -24,27 +24,30 @@ module.exports = {
     const recruiterName = member.displayName;
     const recruiterIcon = member.displayAvatarURL();
 
-    //// MAKE A NEW COMMAND FOR CREATING A NEW RECRUIT(ADD ROLE) AND MAKE INPUT CHECK IF THE USER HAS THAT ROLE
-    //// ALSO MAKE THE COMPLETE COMMAND REMOVE THE ROLE AND SEND A DM EMBED, GIVE NEW ROLE, ETC
-
     if (!member.roles.cache.has(values.recruiterRole)) {
-      interaction.reply({
+      return interaction.reply({
         content: "You do not have permsission to use this command",
         ephemeral: true,
       });
-    } else if (recruit.roles.cache.has(values.recruitRole)) {
+    }
+    if (interaction.channel.id !== values.recruiterChannel) {
+      return interaction.reply({
+        content: `This command can only be used in <#${values.recruiterChannel}>`,
+        ephemeral: true,
+      });
+    }
+    if (recruit.roles.cache.has(values.recruitRole)) {
       const embed = new EmbedBuilder()
         .setColor("#a42a04")
         .setDescription(`**${recruitName}** is already a recruit`);
-      interaction.reply({ embeds: [embed] });
-    } else {
-      recruit.roles.add(values.recruitRole);
-      recruit.roles.add(values.tryoutsHeaderRole);
-
-      const embed = new EmbedBuilder()
-        .setDescription(`**${recruitName}** has been added as a recruit`)
-        .setColor("#ffd700");
-      interaction.reply({ embeds: [embed] });
+      return interaction.reply({ embeds: [embed] });
     }
+    recruit.roles.add(values.recruitRole);
+    recruit.roles.add(values.tryoutsHeaderRole);
+
+    const embed = new EmbedBuilder()
+      .setDescription(`**${recruitName}** has been added as a recruit`)
+      .setColor("#ffd700");
+    interaction.reply({ embeds: [embed] });
   },
 };

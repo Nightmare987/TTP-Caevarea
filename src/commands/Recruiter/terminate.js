@@ -12,7 +12,7 @@ const { values } = require("../../variables");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("terminate")
-    .setDescription("Check all tryouts for a recruit")
+    .setDescription("Terminate/delete a recruits tryouts")
     .addUserOption((option) =>
       option
         .setName("recruit")
@@ -38,27 +38,30 @@ module.exports = {
       RecruitID: recruitID,
     });
 
-    if (!member.roles.cache.has(values.recruiterRole)) {
-      interaction.reply({
+    if (!member.roles.cache.has(values.recruiterRole))
+      return interaction.reply({
         content: "You do not have permsission to use this command",
         ephemeral: true,
       });
-    } else if (!data) {
-      if (memRecruit.roles.cache.has(values.recruitRole)) {
-        memRecruit.roles.remove(values.recruitRole);
-        memRecruit.roles.remove(values.tryoutsHeaderRole);
-        memRecruit.roles.remove(values.TS1Role);
-        memRecruit.roles.remove(values.TS2Role);
-        memRecruit.roles.remove(values.TS3Role);
-        interaction.reply(
-          `${recruit} is no longer a recruit. They did not have any tryout sessions`
-        );
-      } else {
-        interaction.reply({
-          content: `**${recruit}** does not have the <@&1129587595211460669> role`,
-          ephemeral: true,
-        });
-      }
+    if (interaction.channel.id !== values.recruiterChannel) {
+      return interaction.reply({
+        content: `This command can only be used in <#${values.recruiterChannel}>`,
+        ephemeral: true,
+      });
+    }
+    if (memRecruit.roles.cache.has(values.recruitRole)) {
+      return interaction.reply({
+        content: `**${recruit}** is not a <@&${values.recruitRole}>`,
+        ephemeral: true,
+      });
+    }
+
+    if (!data) {
+      memRecruit.roles.remove(values.recruitRole);
+      memRecruit.roles.remove(values.tryoutsHeaderRole);
+      return interaction.reply(
+        `${recruit} is no longer a recruit. They did not have any tryout sessions`
+      );
     } else {
       const tryoutAmount = data.Tryouts.length;
 
@@ -74,17 +77,17 @@ module.exports = {
             "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
         });
 
-      const confirm = new ButtonBuilder()
-        .setCustomId("confirm")
-        .setLabel("Confirm")
-        .setStyle(ButtonStyle.Danger);
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId("confirm")
+          .setLabel("Confirm")
+          .setStyle(ButtonStyle.Danger),
 
-      const cancel = new ButtonBuilder()
-        .setCustomId("cancel")
-        .setLabel("Cancel")
-        .setStyle(ButtonStyle.Primary);
-
-      const row = new ActionRowBuilder().addComponents(confirm, cancel);
+        new ButtonBuilder()
+          .setCustomId("cancel")
+          .setLabel("Cancel")
+          .setStyle(ButtonStyle.Primary)
+      );
 
       const confirmMessage = await interaction.reply({
         embeds: [embed],
