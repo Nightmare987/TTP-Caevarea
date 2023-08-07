@@ -19,6 +19,9 @@ module.exports = {
       console.log("The database is running");
     }
 
-    client.user.setPresence({ activities: [{ name: `Logging Recruits`, type: ActivityType.Competing }], status: 'dnd' });
+    client.user.setPresence({
+      activities: [{ name: `The Third Party`, type: ActivityType.Competing }],
+      status: "dnd",
+    });
   },
 };

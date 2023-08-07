@@ -12,7 +12,7 @@ module.exports = {
     .addStringOption((option) =>
       option
         .setName("message")
-        .setDescription("The custom message to send with the")
+        .setDescription("The custom message to send with the notification")
     ),
 
   async execute(interaction, client) {
@@ -26,14 +26,7 @@ module.exports = {
 
     const customMessage = interaction.options.getString("message");
     const memberID = interaction.member.id;
-    const memberName = interaction.member.displayName;
     const memberAvatar = interaction.member.displayAvatarURL();
-    let userName;
-    if (interaction.user.discriminator === "0") {
-      userName = interaction.user.username;
-    } else {
-      userName = interaction.user.tag;
-    }
 
     if (!member.roles.cache.has(values.recruitRole)) {
       return interaction.reply({
@@ -67,10 +60,8 @@ module.exports = {
         .setColor("#ffd700")
         .setTitle("TRYOUT SESSION NEEDED")
         .setThumbnail(`${memberAvatar}`)
-        .addFields(
-          { name: "Recruit", value: `<@${memberID}> (${userName})` },
-          { name: "Message", value: `${customMessage || "None"}` }
-        );
+        .setDescription(`**Recruit:** <@${memberID}>`)
+        .addFields({ name: "Message", value: `${customMessage || "None"}` });
 
       const sentEmbed = new EmbedBuilder().setColor("#ffd700");
 
@@ -80,7 +71,6 @@ module.exports = {
         sentEmbed.setDescription(
           `Your message has been sent to the recruiters`
         );
-        sentEmbed.addFields({ name: "Message", value: `${customMessage}` });
       }
 
       const channel = client.channels.cache.get(values.recruiterChannel);

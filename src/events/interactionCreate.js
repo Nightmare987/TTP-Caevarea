@@ -12,16 +12,13 @@ module.exports = {
     const commandID = interaction.commandId;
     const commandNAME = interaction.commandName;
 
-    const embed = new EmbedBuilder()
-      .setTitle("MISSING PERMISSIONS")
-      .setColor("#A42A04")
-      .setDescription(
-        `You do not have permissions to run </${commandNAME}:${commandID}>`
-      )
-      .setFooter({
-        text: "Created By: xNightmid",
-        iconURL:
-          "https://cdn.discordapp.com/attachments/1120117446922215425/1120530224677920818/NMD-logo_less-storage.png",
+    const dmEmbed = new EmbedBuilder()
+      .setDescription("**Caevarea cannot be used DMs**")
+      .setColor("#A42A04");
+    if (!interaction.guild)
+      return interaction.reply({
+        embeds: [dmEmbed],
+        ephemeral: true,
       });
 
     if (!interaction.isCommand()) return;

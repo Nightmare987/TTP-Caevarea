@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, User } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const { values } = require("../../variables");
 const friendSchema = require("../../Schemas.js/friend");
 
