@@ -72,21 +72,25 @@ module.exports = {
     const buttons = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setCustomId("up")
-        .setLabel("✅ Upvote")
+        .setLabel("Upvote")
+        .setEmoji('📈')
         .setStyle(ButtonStyle.Primary),
 
       new ButtonBuilder()
         .setCustomId("down")
-        .setLabel("❎ Downvote")
+        .setLabel("Downvote")
+        .setEmoji('📉')
         .setStyle(ButtonStyle.Primary),
 
       (votebutton = new ButtonBuilder()
         .setCustomId("votes")
         .setLabel("Votes")
+        .setEmoji('📃')
         .setStyle(ButtonStyle.Success)),
       new ButtonBuilder()
         .setCustomId("nominate")
         .setLabel("Nominate")
+        .setEmoji('🏁')
         .setStyle(ButtonStyle.Secondary)
     );
 
@@ -324,7 +328,7 @@ module.exports = {
       } else {
         CheckVotes();
       }
-    }, 150000);
+    }, 86400000);
 
     client.on("messageDelete", async (message) => {
       if (message.id !== massage.id) {

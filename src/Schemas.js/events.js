@@ -1,6 +1,7 @@
 const { Schema, model } = require("mongoose");
 
 let eventSchema = new Schema({
+  MessageID: String,
   EventName: String,
   EventDate: String,
   Owner: String,

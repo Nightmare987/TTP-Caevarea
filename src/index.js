@@ -223,8 +223,9 @@ client.on("interactionCreate", async (interaction) => {
       const regPartButton = row1.components.find(
         (button) => button.data.custom_id === "regPart"
       );
-      const title = interaction.message.embeds[0].title;
-      const data = await eventsSchema.findOne({ EventName: title });
+      const data = await eventsSchema.findOne({
+        MessageID: interaction.message.id,
+      });
       const partRole = await interaction.guild.roles.fetch(data.PartRole);
       const subRole = await interaction.guild.roles.fetch(data.SubRole);
       if (!data) {

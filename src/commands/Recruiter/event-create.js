@@ -34,6 +34,7 @@ module.exports = {
         .setName("event-size")
         .setDescription("The amount of people that can register before subs")
         .setRequired(true)
+        .setMinValue(2)
     )
     .addStringOption((option) =>
       option
@@ -65,17 +66,6 @@ module.exports = {
     const subRole = await interaction.guild.roles.create({
       name: `${eventName} Sub`,
       color: "#C0C0C0",
-    });
-
-    await eventsSchema.create({
-      EventName: eventName,
-      EventDate: eventDate,
-      Owner: interaction.user.id,
-      PartRole: partRole.id,
-      SubRole: subRole.id,
-      Size: eventSize,
-      Participants: [],
-      Subs: [],
     });
 
     // embed
@@ -154,5 +144,17 @@ module.exports = {
       components: [row],
     });
     msg.pin();
+
+    await eventsSchema.create({
+      MessageID: msg.id,
+      EventName: eventName,
+      EventDate: eventDate,
+      Owner: interaction.user.id,
+      PartRole: partRole.id,
+      SubRole: subRole.id,
+      Size: eventSize,
+      Participants: [],
+      Subs: [],
+    });
   },
 };
