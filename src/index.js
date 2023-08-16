@@ -311,7 +311,7 @@ client.on("interactionCreate", async (interaction) => {
                     regPartButton.setDisabled(false);
                     await interaction.update({ components: [row1] });
                     await i.followUp(
-                      `${i.user} has been moved from being a **participant** to a **sub** for ${data.EventName}`
+                      `${i.user} has been moved from being a **participant** to a **sub** for **${data.EventName}**`
                     );
                   } else {
                     const next = data.Subs[0];
@@ -321,10 +321,10 @@ client.on("interactionCreate", async (interaction) => {
                     data.Participants.push(next);
                     userNext.roles.add(data.PartRole);
                     await interaction.reply(
-                      `${i.user} has been moved from being a **participant** to a **sub** for ${data.EventName}`
+                      `${i.user} has been moved from being a **participant** to a **sub** for **${data.EventName}**`
                     );
                     await i.followUp({
-                      content: `<@${next}>, you have been moved from a **sub** to a **participant** of **${data.EventName}**`,
+                      content: `<@${next}>, you have been promoted from a **sub** to a **participant** of **${data.EventName}**`,
                     });
                   }
                   data.Participants.pull(i.user.id);
@@ -338,9 +338,8 @@ client.on("interactionCreate", async (interaction) => {
                   interaction.member.roles.remove(partRole);
                   data.Subs.push(interaction.user.id);
                   interaction.member.roles.add(subRole);
-                  console.log("this is it");
                   await interaction.followUp(
-                    `${i.user} has been moved from being a **participant** to a **sub** for ${data.EventName}`
+                    `${i.user} has been moved from being a **participant** to a **sub** for **${data.EventName}**`
                   );
                   data.save();
                   collector.stop(i.customId);
@@ -483,7 +482,7 @@ client.on("interactionCreate", async (interaction) => {
                 }
               );
 
-            const logChannel = interaction.guild.channels.fetch(
+            const logChannel = await interaction.guild.channels.fetch(
               values.EventsLogChannel
             );
             interaction.channel.delete();

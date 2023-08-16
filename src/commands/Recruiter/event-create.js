@@ -83,6 +83,11 @@ module.exports = {
       .setColor("#ffd700")
       .setTitle(`${eventName}`)
       .setDescription(`**Date: ${eventDate}**\n**Size: ${eventSize}**`)
+      .addFields({
+        name: "Creator",
+        value: `${interaction.user}`,
+        inline: false,
+      })
       .setThumbnail(`${interaction.guild.iconURL()}`);
 
     if (eventMessage !== null) {
