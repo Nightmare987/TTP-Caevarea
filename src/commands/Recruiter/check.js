@@ -1,33 +1,68 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const recruitSchema = require("../../Schemas.js/recruits");
-const { values } = require("../../variables");
+const allRecruitsSchema = require("../../Schemas.js/all-recruits");
+const { values, pages } = require("../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("check")
-    .setDescription("Check tryouts for a specific recruit")
-    .addUserOption((option) =>
+    .setDescription("See all recruits or check tryouts for a specific")
+    .addStringOption((option) =>
       option
         .setName("recruit")
         .setDescription("The recruit to check scores for")
-        .setRequired(true)
+        .setAutocomplete(true)
     ),
+
+  async autocomplete(interaction) {
+    const value = interaction.options.getFocused().toLowerCase();
+    const docs = await recruitSchema.find();
+
+    let choices = [];
+    await docs.forEach(async (doc) => {
+      choices.push({ name: doc.RecruitName, id: doc.RecruitID });
+    });
+
+    const filtered = choices.filter((choice) =>
+      choice.name.toLowerCase().includes(value)
+    );
+
+    if (!interaction) return;
+
+    await interaction.respond(
+      filtered.map((choice) => ({ name: choice.name, value: choice.id }))
+    );
+  },
 
   async execute(interaction) {
     const member = interaction.member;
 
-    const recruit = interaction.options.getUser("recruit");
+    const recruitString = interaction.options.getString("recruit");
+    if (recruitString === "no-sessions") return;
 
-    const recruiterID = interaction.user.id;
-    const recruiterName = interaction.user.username;
-    const recruiterIcon = interaction.user.avatarURL();
+    const recruiterID = member.id;
+    const recruiterName = member.displayName;
+    const recruiterIcon = member.displayAvatarURL();
 
-    const recruitID = recruit.id;
-    const recruitName = recruit.username;
-    const recruitIcon = recruit.avatarURL();
-    const data = await recruitSchema.findOne({
-      RecruitID: recruitID,
-    });
+    let data;
+    let recruit;
+    let recruitName;
+    let recruitIcon;
+    if (recruitString !== null) {
+      recruit = await interaction.guild.members.fetch(recruitString);
+      recruitName = recruit.displayName;
+      recruitIcon = recruit.displayAvatarURL();
+      data = await recruitSchema.findOne({
+        RecruitID: recruitString,
+      });
+      if (!recruit.roles.cache.has(values.recruitRole))
+        return interaction.reply({
+          content: `${recruit} is not a recruit`,
+          ephemeral: true,
+        });
+    } else {
+      data = await allRecruitsSchema.find();
+    }
 
     const icon = interaction.guild.iconURL();
 
@@ -36,17 +71,17 @@ module.exports = {
         content: "You do not have permsission to use this command",
         ephemeral: true,
       });
-    if (!recruit.roles.cache.has(values.recruitRole))
-      return interaction.reply({
-        content: `${recruit} is not a recruit`,
-        ephemeral: true,
-      });
 
-    if (!data) {
-      interaction.reply({
-        content: `**${recruitName}** Does not have any tryout sessions`,
-        ephemeral: true,
+    if (recruitString === null) {
+      let description = "";
+      await data.forEach(async (doc) => {
+        description += `\n> <@${doc.RecruitID}>`;
       });
+      const embed = new EmbedBuilder()
+        .setColor("#ffd700")
+        .setTitle("All Recruits")
+        .setDescription(description);
+      return interaction.reply({ embeds: [embed], ephemeral: true });
     } else {
       const tryoutAmount = data.Tryouts.length;
       let totalTotal;
@@ -59,26 +94,8 @@ module.exports = {
         totalTotal = data.Tryouts[0].Total;
       }
 
-      const embed = new EmbedBuilder()
-        .setColor("#ffd700")
-        .setTitle(`Current Sessions for ${recruitName}`)
-        .setAuthor({
-          name: `${recruiterName}`,
-          iconURL: `${recruiterIcon}`,
-        })
-        .setThumbnail(`${recruitIcon}`);
-
-      if (tryoutAmount !== 3) {
-        embed.setDescription(
-          "Use </input:1128111165764010078> to add more tryouts"
-        );
-      } else {
-        embed.setDescription(
-          "All 3 tryouts are complete, you can use </complete:1128111165764010077> to complete the tryout process."
-        );
-      }
-
       const contents = data.Tryouts;
+      let p = [];
 
       for (const content of contents) {
         const tryoutNum = content.TryoutNum;
@@ -90,45 +107,67 @@ module.exports = {
         const comment = content.Comment;
         const total = content.Total;
 
-        embed.addFields(
-          { name: "\u200B", value: "\u200B" },
-          { name: "Session #", value: `**${tryoutNum}**`, inline: true },
-          { name: "Date", value: `**${tryoutDate}**`, inline: true },
-          {
-            name: "Recruiter",
-            value: `<@${recruiterIdData}>`,
-            inline: true,
-          },
-          { name: "Vibe", value: `${vibe}`, inline: true },
-          { name: "Skill", value: `${skill}`, inline: true },
-          { name: "Strategy", value: `${strategy}`, inline: true },
-          { name: "Comment", value: `${comment}` },
-          {
-            name: "Session Total:",
-            value: `${total}\n-----------------------------`,
-          }
-        );
+        const embed = new EmbedBuilder()
+          .setColor("#ffd700")
+          .addFields(
+            { name: "Session #", value: `**${tryoutNum}**`, inline: true },
+            { name: "Date", value: `**${tryoutDate}**`, inline: true },
+            {
+              name: "Recruiter",
+              value: `<@${recruiterIdData}>`,
+              inline: true,
+            },
+            { name: "Vibe", value: `${vibe}`, inline: true },
+            { name: "Skill", value: `${skill}`, inline: true },
+            { name: "Strategy", value: `${strategy}`, inline: true },
+            { name: "Comment", value: `${comment}` },
+            {
+              name: "Session Total:",
+              value: `${total}`,
+            }
+          )
+          .setThumbnail(`${recruitIcon}`);
+
+        if (tryoutAmount === 3) {
+          embed.setFooter({
+            text: `Page: ${tryoutNum}/${tryoutAmount + 1}`,
+          });
+          embed.setTitle(`**Final Sessions for ${recruitName}**`);
+        } else if (tryoutAmount === 2) {
+          embed.setFooter({
+            text: `Page: ${tryoutNum}/${tryoutAmount + 1}`,
+          });
+          embed.setTitle(
+            `**Current Sessions for ${recruitName}: ${tryoutAmount}**`
+          );
+        } else {
+          embed.setFooter({
+            text: `Page: ${tryoutNum}/${tryoutAmount}`,
+          });
+          embed.setTitle(`**First Session for ${recruitName}**`);
+        }
+
+        p.push(embed);
       }
 
-      const totalEmbed = new EmbedBuilder()
-        .setColor("#ffd700")
-        .setDescription(`**${totalTotal}**`)
-        .setFooter({
-          text: "Created By: xNightmid",
-          iconURL:
-            "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
-        });
-      if (tryoutAmount === 3) {
-        totalEmbed.setTitle("Final Tryout Score");
-      } else {
-        totalEmbed.setTitle("Current Tryout Score");
+      if (tryoutAmount !== 1) {
+        const totalEmbed = new EmbedBuilder()
+          .setColor("#ffd700")
+          .setDescription(`**${totalTotal}**`)
+          .setThumbnail(`${recruitIcon}`)
+          .setFooter({
+            text: `Page: ${tryoutAmount + 1}/${tryoutAmount + 1}`,
+          });
+        if (tryoutAmount === 3) {
+          totalEmbed.setTitle("**Final Tryout Score**");
+        } else {
+          totalEmbed.setTitle("**Current Tryout Score**");
+        }
+
+        p.push(totalEmbed);
       }
 
-      if (tryoutAmount === 1) {
-        interaction.reply({ embeds: [embed], ephemeral: true });
-      } else {
-        interaction.reply({ embeds: [embed, totalEmbed], ephemeral: true });
-      }
+      await pages(p, interaction);
     }
   },
 };

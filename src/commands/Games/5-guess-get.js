@@ -7,10 +7,19 @@ module.exports = {
     .setName("guess-get")
     .setDescription("Get your or another users guess game data")
     .addUserOption((option) =>
-      option.setName("user").setDescription("The user to get the data for")
+      option
+      .setName("user")
+      .setDescription("The user to get the data for")
     ),
 
   async execute(interaction) {
+    if (interaction.channel.id !== values.recruitChannel) {
+      return interaction.reply({
+        content: `This command can only be used in <#${values.GamesChannel}>`,
+        ephemeral: true,
+      });
+    }
+
     const user = interaction.options.getMember("user");
 
     if (user === null) {

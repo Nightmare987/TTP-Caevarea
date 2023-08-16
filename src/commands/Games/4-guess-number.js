@@ -6,14 +6,14 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("guess-the-number")
     .setDescription("Play guess the number")
-    .addNumberOption((option) =>
+    .addIntegerOption((option) =>
       option
         .setName("max")
         .setDescription("The max number to play with")
         .setMinValue(40)
         .setRequired(true)
     )
-    .addNumberOption((option) =>
+    .addIntegerOption((option) =>
       option
         .setName("guess")
         .setDescription("The number your guessing")
@@ -21,8 +21,15 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    const max = interaction.options.getNumber("max");
-    const guess = interaction.options.getNumber("guess");
+    if (interaction.channel.id !== values.recruitChannel) {
+      return interaction.reply({
+        content: `This command can only be used in <#${values.GamesChannel}>`,
+        ephemeral: true,
+      });
+    }
+
+    const max = interaction.options.getInteger("max");
+    const guess = interaction.options.getInteger("guess");
 
     if (guess > max) {
       return interaction.reply({

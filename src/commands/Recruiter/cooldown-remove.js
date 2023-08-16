@@ -8,16 +8,39 @@ module.exports = {
     .setDescription(
       "(not ready yet) Removes the coodlown for the /available command for a specified user"
     )
-    .addUserOption((option) =>
+    .addStringOption((option) =>
       option
         .setName("recruit")
         .setDescription("The recruit to remove the coodlown for")
         .setRequired(true)
+        .setAutocomplete(true)
     ),
+  async autocomplete(interaction) {
+    const value = interaction.options.getFocused().toLowerCase();
+    const docs = await cooldownSchema.find();
+
+    let choices = [];
+    await docs.forEach(async (doc) => {
+      const recruit = await interaction.guild.members.fetch(doc.UserID);
+      const username = recruit.user.username;
+      choices.push({ name: username, id: doc.UserID });
+    });
+
+    const filtered = choices.filter((choice) =>
+      choice.name.toLowerCase().includes(value)
+    );
+
+    if (!interaction) return;
+
+    await interaction.respond(
+      filtered.map((choice) => ({ name: choice.name, value: choice.id }))
+    );
+  },
 
   async execute(interaction, client) {
     const member = interaction.member;
-    const recruit = interaction.options.getMember("recruit");
+    const recruitString = interaction.options.getString("recruit");
+    const recruit = await interaction.guild.members.fetch(recruitString);
     const recruitID = recruit.id;
 
     const data = await cooldownSchema.findOne({ UserID: recruitID });

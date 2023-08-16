@@ -6,6 +6,7 @@ const {
   TextInputBuilder,
   TextInputStyle,
 } = require("discord.js");
+const allRecruitsSchema = require("../../Schemas.js/all-recruits");
 const recruitSchema = require("../../Schemas.js/recruits");
 const { values } = require("../../variables");
 
@@ -13,11 +14,12 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("input")
     .setDescription("Input scores for a recruit")
-    .addUserOption((option) =>
+    .addStringOption((option) =>
       option
         .setName("recruit")
         .setDescription("The recruit to input scores for")
         .setRequired(true)
+        .setAutocomplete(true)
     )
     .addNumberOption((option) =>
       option
@@ -49,14 +51,34 @@ module.exports = {
         .setDescription("A comment for this session - Optional")
     ),
 
+  async autocomplete(interaction) {
+    const value = interaction.options.getFocused().toLowerCase();
+    const docs = await allRecruitsSchema.find();
+
+    let choices = [];
+    await docs.forEach(async (doc) => {
+      choices.push({ name: doc.RecruitName, id: doc.RecruitID });
+    });
+
+    const filtered = choices.filter((choice) =>
+      choice.name.toLowerCase().includes(value)
+    );
+
+    if (!interaction) return;
+
+    await interaction.respond(
+      filtered.map((choice) => ({ name: choice.name, value: choice.id }))
+    );
+  },
+
   async execute(interaction, client) {
     const member = interaction.member;
 
-    const recruit = interaction.options.getUser("recruit");
-    const memRecruit = interaction.options.getMember("recruit");
+    const recruitString = interaction.options.getString("recruit");
+    const recruit = await interaction.guild.members.fetch(recruitString);
     const recruitID = recruit.id;
-    const recruitName = recruit.username;
-    const recruitIcon = recruit.avatarURL();
+    const recruitName = recruit.displayName;
+    const recruitIcon = recruit.displayAvatarURL();
 
     const recruiterID = interaction.user.id;
     const recruiterName = interaction.user.username;
@@ -88,8 +110,8 @@ module.exports = {
         ephemeral: true,
       });
     }
-    if (!memRecruit.roles.cache.has(values.recruitRole)) {
-      redEmbed.setDescription(`**${memRecruit}** is not a recruit`);
+    if (!recruit.roles.cache.has(values.recruitRole)) {
+      redEmbed.setDescription(`**${recruit}** is not a recruit`);
       return interaction.reply({ embeds: [redEmbed], ephemeral: true });
     }
 
@@ -153,11 +175,11 @@ module.exports = {
     data.save();
 
     if (tryoutAmount === 0) {
-      memRecruit.roles.add(values.TS1Role);
+      recruit.roles.add(values.TS1Role);
     } else if (tryoutAmount === 1) {
-      memRecruit.roles.add(values.TS2Role);
+      recruit.roles.add(values.TS2Role);
     } else {
-      memRecruit.roles.add(values.TS3Role);
+      recruit.roles.add(values.TS3Role);
     }
 
     const embed = new EmbedBuilder()

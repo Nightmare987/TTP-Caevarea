@@ -6,11 +6,12 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("complete")
     .setDescription("Complete a tryouts for a recruit")
-    .addUserOption((option) =>
+    .addStringOption((option) =>
       option
         .setName("recruit")
         .setDescription("The recruit to complete the tryout for")
         .setRequired(true)
+        .setAutocomplete(true)
     )
     .addBooleanOption((option) =>
       option
@@ -19,17 +20,38 @@ module.exports = {
         .setRequired(true)
     ),
 
+  async autocomplete(interaction) {
+    const value = interaction.options.getFocused().toLowerCase();
+    const docs = await recruitSchema.find({ Tryouts: { $size: 3 } });
+
+    let choices = [];
+    await docs.forEach(async (doc) => {
+      choices.push({ name: doc.RecruitName, id: doc.RecruitID });
+    });
+
+    const filtered = choices.filter((choice) =>
+      choice.name.toLowerCase().includes(value)
+    );
+
+    if (!interaction) return;
+
+    await interaction.respond(
+      filtered.map((choice) => ({ name: choice.name, value: choice.id }))
+    );
+  },
+
   async execute(interaction, client) {
     const member = interaction.member;
 
     const passed = interaction.options.getBoolean("passed");
     const channelSend = client.channels.cache.get(interaction.channel.id);
 
-    const recruit = interaction.options.getUser("recruit");
-    const memRecruit = interaction.options.getMember("recruit");
+    const recruitString = interaction.options.getString("recruit");
+
+    const recruit = await interaction.guild.members.fetch(recruitString);
     const recruitID = recruit.id;
-    const recruitName = recruit.username;
-    const recruitIcon = recruit.avatarURL();
+    const recruitName = recruit.displayName;
+    const recruitIcon = recruit.displayAvatarURL();
 
     const recruiterID = interaction.user.id;
     const recruiterName = interaction.user.username;
@@ -50,9 +72,9 @@ module.exports = {
         ephemeral: true,
       });
     }
-    if (!memRecruit.roles.cache.has(values.recruitRole))
+    if (!recruit.roles.cache.has(values.recruitRole))
       return interaction.reply({
-        content: `${memRecruit} is not a recruit`,
+        content: `${recruit} is not a recruit`,
         ephemeral: true,
       });
 
@@ -134,11 +156,11 @@ module.exports = {
     });
     final.pin();
 
-    memRecruit.roles.remove(values.recruitRole);
-    memRecruit.roles.remove(values.tryoutsHeaderRole);
-    memRecruit.roles.remove(values.TS1Role);
-    memRecruit.roles.remove(values.TS2Role);
-    memRecruit.roles.remove(values.TS3Role);
+    recruit.roles.remove(values.recruitRole);
+    recruit.roles.remove(values.tryoutsHeaderRole);
+    recruit.roles.remove(values.TS1Role);
+    recruit.roles.remove(values.TS2Role);
+    recruit.roles.remove(values.TS3Role);
 
     const dmEmbed = new EmbedBuilder()
       .setColor("#4169E1")
@@ -153,7 +175,7 @@ module.exports = {
         "We are sorry to say that you have been denied of becoming a member after completing your tryout"
       );
     } else {
-      memRecruit.roles.add(values.memberRole);
+      recruit.roles.add(values.memberRole);
       dmEmbed.setDescription(
         "We are glad to say that you have been accepted as a member of TTP. Welcome to the family"
       );

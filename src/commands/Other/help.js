@@ -12,7 +12,8 @@ module.exports = {
         .setDescription(`The feature of commands you need help with`)
         .setRequired(true)
         .addChoices(
-          { name: `Open`, value: `Open` },
+          { name: `Community`, value: `Community` },
+          { name: `Games`, value: `Games` },
           { name: `Recruiter`, value: `Recruiter` }
         )
     ),
@@ -31,7 +32,7 @@ module.exports = {
       });
     }
     const loadembeds = new EmbedBuilder()
-      .setDescription(`⏳ Fetching the ${feature} help list...`)
+      .setDescription(`⏳ Fetching the ${feature} help list... Stand by`)
       .setColor("#ffd700");
 
     await interaction.reply({
@@ -57,13 +58,20 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setTitle(`CAEVAREA'S ${embedTitle} COMMANDS`)
-      .setDescription(`${description}`)
       .setColor("#ffd700")
       .setFooter({
         text: "Created By: xNightmid",
         iconURL:
           "https://cdn.discordapp.com/attachments/1120117446922215425/1120530224677920818/NMD-logo_less-storage.png",
       });
+
+    if (feature === "Games") {
+      embed.setDescription(
+        `**These commands can only be used in <#${values.GamesChannel}>**${description}`
+      );
+    } else {
+      embed.setDescription(`${description}`);
+    }
 
     interaction.editReply({ embeds: [embed], ephemeral: true });
   },

@@ -1,11 +1,10 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const { values } = require("../../variables");
-const { pages } = require("../../paginate");
+const { values, pages } = require("../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("guess-info")
-    .setDescription("Get additional info on the guess commands"),
+    .setDescription("Get additional info on the guess-the-number command"),
 
   async execute(interaction, client) {
     const embed1 = new EmbedBuilder()
