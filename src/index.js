@@ -66,6 +66,7 @@ const { values } = require("./variables");
 const counting = require("./Schemas.js/counting");
 const allRecruitsSchema = require("./Schemas.js/all-recruits");
 const eventsSchema = require("./Schemas.js/events");
+const pollSchema = require("./Schemas.js/votes");
 
 client.commands = new Collection();
 
@@ -153,6 +154,27 @@ client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
       RecruitName: newMember.user.username,
     });
   } else return;
+});
+
+// when nomination is deleted
+client.on("messageDelete", async (message) => {
+  if (!message.embeds.length) return;
+  if (message.embeds[0].title !== "New Recruit Nomination") return;
+  const docs = await pollSchema.find();
+  let choices = [];
+  await docs.forEach(async (doc) => {
+    choices.push(doc.Msg);
+  });
+  if (!choices.includes(message.id)) return;
+  const deleteMessage = await message.channel.messages.fetch({
+    after: message.id,
+    limit: 1,
+  });
+  const data = await pollSchema.findOne({ Msg: message.id });
+  const member = await message.guild.members.fetch(data.Nominee);
+  deleteMessage.first().delete();
+  data.delete();
+  member.roles.remove(values.nomineeRole);
 });
 
 // COUTNING
@@ -491,6 +513,237 @@ client.on("interactionCreate", async (interaction) => {
               embeds: [embed, embedFinal],
             });
           }
+        }
+      }
+    } else if (
+      id === "up" ||
+      id === "down" ||
+      id === "votes" ||
+      id === "nominate"
+    ) {
+      const buttons = ActionRowBuilder.from(interaction.message.components[0]);
+      const nomineeID =
+        interaction.message.embeds[0].fields[0].value.match(/\d+/g)[0];
+      const data = await pollSchema.findOne({
+        Nominee: nomineeID,
+      });
+      const msg = await interaction.message;
+      const member = await interaction.guild.members.fetch(data.Nominee);
+      async function CheckVotes() {
+        member.roles.remove(values.nomineeRole);
+        msg.delete();
+        const dmEmbed = new EmbedBuilder()
+          .setColor("#4169E1")
+          .setTitle("TTP NOMINATION COMPLETED")
+          .setFooter({
+            text: "Created By: xNightmid",
+            iconURL:
+              "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
+          });
+        const nomCompleteEmbed1 = new EmbedBuilder()
+          .setColor("#ffd700")
+          .setTitle("Nomination Process Complete")
+          .addFields(
+            { name: `Nominee`, value: `<@${data.Nominee}>`, inline: true },
+            { name: `Initiator`, value: `<@${data.Owner}>`, inline: true }
+          );
+        if (data.Upvote > data.Downvote) {
+          dmEmbed.setDescription(
+            `Nice! You have passed the TTP nomination process and are now a official recruit!`
+          );
+          nomCompleteEmbed1.addFields({
+            name: `Outcome`,
+            value: `Accepted`,
+          });
+          member.roles.add(values.recruitRole);
+          member.roles.add(values.tryoutsHeaderRole);
+        } else {
+          dmEmbed.setDescription(
+            `Unfortunately, you did not pass the TTP nomination process.`
+          );
+          nomCompleteEmbed1.addFields({
+            name: `Outcome`,
+            value: `Rejected`,
+          });
+        }
+
+        let upvoters = [];
+        await data.Upmembers.forEach(async (member) => {
+          upvoters.push(`<@${member}>`);
+        });
+
+        let downvoters = [];
+        await data.Downmembers.forEach(async (member) => {
+          downvoters.push(`<@${member}>`);
+        });
+
+        const nomCompleteEmbed2 = new EmbedBuilder()
+          .setColor("#ffd700")
+          .setTitle("Nomination Votes")
+          .addFields(
+            {
+              name: `Upvoters (${upvoters.length})`,
+              value: `> ${
+                upvoters.join("\n> ").slice(0, 1020) || "No upvoters"
+              }`,
+              inline: true,
+            },
+            {
+              name: `Downvoters (${downvoters.length})`,
+              value: `> ${
+                downvoters.join("\n> ").slice(0, 1020) || "No downvoters"
+              }`,
+              inline: true,
+            }
+          );
+        interaction.channel.send({
+          content: `<@&${values.recruiterRole}>`,
+          embeds: [nomCompleteEmbed1, nomCompleteEmbed2],
+        });
+        client.users.send(member, { embeds: [dmEmbed] });
+      }
+
+      if (id === "up") {
+        if (data.Upmembers.includes(interaction.user.id)) {
+          return await interaction.reply({
+            content: `You have already upvoted on this poll`,
+            ephemeral: true,
+          });
+        } else {
+          let downvotes = data.Downvote;
+          if (data.Downmembers.includes(interaction.user.id)) {
+            downvotes = downvotes - 1;
+          }
+          const newEmbed = EmbedBuilder.from(msg.embeds[0]).setFields(
+            { name: `Nominee`, value: `> <@${data.Nominee}>` },
+            { name: `Initiator`, value: `> <@${data.Owner}>` },
+            {
+              name: `Upvotes`,
+              value: `> **${data.Upvote + 1}** Votes`,
+              inline: true,
+            },
+            {
+              name: `Downvotes`,
+              value: `> **${downvotes}** Votes`,
+              inline: true,
+            }
+          );
+
+          data.Upvote++;
+
+          if (data.Downmembers.includes(interaction.user.id)) {
+            data.Downvote = data.Downvote - 1;
+          }
+
+          data.Upmembers.push(interaction.user.id);
+          data.Downmembers.pull(interaction.user.id);
+          data.save();
+
+          await interaction.update({
+            embeds: [newEmbed],
+            components: [buttons],
+          });
+        }
+      }
+
+      if (id === "down") {
+        if (data.Downmembers.includes(interaction.user.id)) {
+          return await interaction.reply({
+            content: `You have already downvoted on this poll`,
+            ephemeral: true,
+          });
+        } else {
+          let upvotes = data.Upvote;
+          if (data.Upmembers.includes(interaction.user.id)) {
+            upvotes = upvotes - 1;
+          }
+          const newEmbed = EmbedBuilder.from(msg.embeds[0]).setFields(
+            { name: `Nominee`, value: `> <@${data.Nominee}>` },
+            { name: `Initiator`, value: `> <@${data.Owner}>` },
+            {
+              name: `Upvotes`,
+              value: `> **${upvotes}** Votes`,
+              inline: true,
+            },
+            {
+              name: `Downvotes`,
+              value: `> **${data.Downvote + 1}** Votes`,
+              inline: true,
+            }
+          );
+
+          await interaction.update({
+            embeds: [newEmbed],
+            components: [buttons],
+          });
+
+          data.Downvote++;
+
+          if (data.Upmembers.includes(interaction.user.id)) {
+            data.Upvote = data.Upvote - 1;
+          }
+
+          data.Downmembers.push(interaction.user.id);
+          data.Upmembers.pull(interaction.user.id);
+          data.save();
+        }
+      }
+
+      if (id === "votes") {
+        let upvoters = [];
+        await data.Upmembers.forEach(async (member) => {
+          upvoters.push(`<@${member}>`);
+        });
+
+        let downvoters = [];
+        await data.Downmembers.forEach(async (member) => {
+          downvoters.push(`<@${member}>`);
+        });
+
+        const embed = new EmbedBuilder()
+          .setColor("#ffd700")
+          .setTitle("Nomination Votes")
+          .addFields(
+            {
+              name: `Upvoters (${upvoters.length})`,
+              value: `> ${
+                upvoters.join("\n> ").slice(0, 1020) || "No upvoters"
+              }`,
+              inline: true,
+            },
+            {
+              name: `Downvoters (${downvoters.length})`,
+              value: `> ${
+                downvoters.join("\n> ").slice(0, 1020) || "No downvoters"
+              }`,
+              inline: true,
+            }
+          );
+
+        await interaction.reply({ embeds: [embed], ephemeral: true });
+      }
+
+      if (id === "nominate") {
+        if (interaction.user.id !== data.Owner) {
+          const notYouEmbed = new EmbedBuilder()
+            .setColor("#a42a04")
+            .setDescription(`Only <@${data.Owner}> can use this button`);
+          await interaction.reply({
+            embeds: [notYouEmbed],
+            ephemeral: true,
+          });
+        } else if (data.Upvote === data.Downvote) {
+          const equalEmbed = new EmbedBuilder()
+            .setColor("#a42a04")
+            .setDescription(
+              `The upvotes and downvotes for ${member} are equal, therefor a decision could not be made. `
+            );
+          interaction.reply({
+            embeds: [equalEmbed],
+            ephemeral: true,
+          });
+        } else {
+          CheckVotes();
         }
       }
     }

@@ -144,6 +144,7 @@ module.exports = {
             content: `<@&${values.recruiterRole}>`,
             embeds: [confirmEmbed],
           });
+          collector.stop();
         }
         if (i.customId === "cancel") {
           const cancelEmbed = new EmbedBuilder()
@@ -161,6 +162,7 @@ module.exports = {
             components: [],
             ephemeral: true,
           });
+          collector.stop();
         }
       });
     }
