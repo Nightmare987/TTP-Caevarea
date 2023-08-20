@@ -11,7 +11,6 @@ const eventsSchema = require("../../Schemas.js/events");
 const { values } = require("../../variables");
 
 module.exports = {
-  cooldown: 3600,
   data: new SlashCommandBuilder()
     .setName("event-create")
     .setDescription("Create a event")
