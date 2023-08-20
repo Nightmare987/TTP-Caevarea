@@ -232,7 +232,7 @@ client.on("interactionCreate", async (interaction) => {
             .find((button) => button.data.custom_id === "reg")
             .setDisabled(false);
           interaction.update({ components: [row1] }); */
-  if (interaction.isButton) {
+  if (interaction.isButton()) {
     const id = interaction.customId;
     if (
       id === "regPart" ||
@@ -744,6 +744,101 @@ client.on("interactionCreate", async (interaction) => {
           });
         } else {
           CheckVotes();
+        }
+      }
+    }
+  } else if (interaction.isRoleSelectMenu()) {
+    if (interaction.customId === "roles") {
+      const roles = interaction.roles;
+      if (roles.size === 1) {
+        const role = await interaction.guild.roles.fetch(
+          interaction.roles.first().id
+        );
+
+        const members = await role.members;
+        let allMembers = "";
+        await members.forEach(async (member) => {
+          allMembers += `\n> <@${member.id}> (${member.user.tag})`;
+        });
+        const finalEmbed = new EmbedBuilder()
+          .setColor("#ffd700")
+          .setTitle(`${role.name}'s Members`)
+          .setDescription(allMembers);
+        interaction.update({ embeds: [finalEmbed] });
+      } else {
+        let description = "";
+        await roles.forEach(async (roleID) => {
+          let allMembers = "";
+          await roleID.members.forEach(async (member) => {
+            allMembers += `\n> <@${member.id}> (${member.user.tag})`;
+          });
+          description += `\n\n**${roleID.name} (${roleID.members.size})**${allMembers}`;
+        });
+        const finalEmbed = new EmbedBuilder()
+          .setColor("#ffd700")
+          .setTitle(`Selected Roles Members`);
+        if (description.length > 4096) {
+          finalEmbed.setDescription(`The character length is too long`);
+        } else {
+          finalEmbed.setDescription(description);
+        }
+        interaction.update({ embeds: [finalEmbed] });
+      }
+    }
+  } else if (interaction.isStringSelectMenu()) {
+    if (interaction.customId === "help") {
+      const value = interaction.values;
+      if (value.length === 1) {
+        const feature = interaction.values[0];
+        // console.log(interaction.message.components[0]);
+
+        if (
+          feature === "Recruiter" &&
+          !interaction.member.roles.cache.has(values.recruiterRole)
+        ) {
+          const notAllowed = new EmbedBuilder()
+            .setColor("#ffd700")
+            .setDescription(
+              "You do not have permission to see the help page of these commands"
+            );
+          interaction.update({
+            embeds: [notAllowed],
+          });
+        } else {
+          const commands = fs
+            .readdirSync(`./src/commands/${feature}`)
+            .filter((file) => file.endsWith(".js"));
+          let description = "";
+          for (const file of commands) {
+            let command = require(`./commands/${feature}/${file}`);
+            await client.application.commands.fetch();
+            const cmd = client.application.commands.cache.find(
+              (cmd) => cmd.name === command.data.name
+            );
+
+            description += `\n> \n> </${command.data.name}:${cmd.id}>: ${command.data.description}`;
+          }
+
+          const embedTitle = feature.toUpperCase();
+
+          const embed = new EmbedBuilder()
+            .setTitle(`CAEVAREA'S ${embedTitle} COMMANDS (${commands.length})`)
+            .setColor("#ffd700")
+            .setFooter({
+              text: "Created By: xNightmid",
+              iconURL:
+                "https://cdn.discordapp.com/attachments/1120117446922215425/1120530224677920818/NMD-logo_less-storage.png",
+            });
+
+          if (feature === "Games") {
+            embed.setDescription(
+              `**These commands can only be used in <#${values.GamesChannel}>**${description}`
+            );
+          } else {
+            embed.setDescription(`${description}`);
+          }
+
+          interaction.update({ embeds: [embed] });
         }
       }
     }

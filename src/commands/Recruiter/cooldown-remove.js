@@ -6,7 +6,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("remove-cooldown")
     .setDescription(
-      "(not ready yet) Removes the coodlown for the /available command for a specified user"
+      "Removes the coodlown for the /available command for a specified user"
     )
     .addStringOption((option) =>
       option

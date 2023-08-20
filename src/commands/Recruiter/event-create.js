@@ -34,6 +34,7 @@ module.exports = {
         .setDescription("The amount of people that can register before subs")
         .setRequired(true)
         .setMinValue(2)
+        .setMaxValue(24)
     )
     .addStringOption((option) =>
       option
@@ -80,7 +81,7 @@ module.exports = {
       .setThumbnail(`${interaction.guild.iconURL()}`);
 
     if (eventMessage !== null) {
-      embed.addFields(
+      embed.setFields(
         { name: `Creator`, value: `${member}` },
         { name: `Message`, value: `${eventMessage}` }
       );

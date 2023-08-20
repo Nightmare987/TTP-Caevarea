@@ -6,7 +6,7 @@ const { values, pages } = require("../../variables");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("check")
-    .setDescription("See all recruits or check tryouts for a specific")
+    .setDescription("See all recruits or check tryouts for a specific one")
     .addStringOption((option) =>
       option
         .setName("recruit")

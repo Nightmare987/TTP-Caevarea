@@ -1,16 +1,16 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const {
+  SlashCommandBuilder,
+  EmbedBuilder,
+  ActionRowBuilder,
+  RoleSelectMenuBuilder,
+} = require("discord.js");
 const { values } = require("../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("role-members")
-    .setDescription("See all the users that have a role")
-    .addRoleOption((option) =>
-      option
-        .setName("role")
-        .setDescription("The role to check members for")
-        .setRequired(true)
-    ),
+    .setDescription("See all the users that have a role"),
+
   async execute(interaction) {
     if (!interaction.member.roles.cache.has(values.recruiterRole))
       return interaction.reply({
@@ -18,22 +18,21 @@ module.exports = {
         ephemeral: true,
       });
 
-    const role = interaction.options.getRole("role");
+    const row1 = new ActionRowBuilder().addComponents(
+      new RoleSelectMenuBuilder()
+        .setCustomId("roles")
+        .setPlaceholder("Select 1 - 10 roles...")
+        .setMinValues(1)
+        .setMaxValues(10)
+    );
 
-    const laodEmbed = new EmbedBuilder()
-      .setColor("#ffd700")
-      .setDescription(`🏁 Fetching ${role}s members...`);
-    await interaction.reply({ embeds: [laodEmbed], ephemeral: true });
-
-    const members = await role.members;
-    let allMembers = "";
-    await members.forEach(async (member) => {
-      allMembers += `\n> <@${member.id}> (${member.user.tag})`;
-    });
     const finalEmbed = new EmbedBuilder()
       .setColor("#ffd700")
-      .setTitle(`${role.name}'s Members`)
-      .setDescription(allMembers);
-    interaction.editReply({ embeds: [finalEmbed] });
+      .setDescription("Select a role to see its members");
+    interaction.reply({
+      embeds: [finalEmbed],
+      components: [row1],
+      ephemeral: true,
+    });
   },
 };
