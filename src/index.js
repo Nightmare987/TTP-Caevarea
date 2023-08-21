@@ -107,6 +107,7 @@ const commandFolders = fs.readdirSync("./src/commands");
  */
 // set activity and presence
 const activities = [
+  "The Third Party",
   "Wiping with 2ply toilet paper",
   "Its in the bag!!",
   "The Terrible Players",
