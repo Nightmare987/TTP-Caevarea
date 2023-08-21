@@ -63,9 +63,10 @@ const client = new Client({
   ],
   restTimeOffset: 0,
 });
-const { values } = require("./variables");
+const { values, pages, pageYes } = require("./variables");
 const counting = require("./Schemas.js/counting");
 const allRecruitsSchema = require("./Schemas.js/all-recruits");
+const recruitSchema = require("./Schemas.js/recruits");
 const eventsSchema = require("./Schemas.js/events");
 const pollSchema = require("./Schemas.js/votes");
 
@@ -96,6 +97,7 @@ const activities = [
   "Its in the bag!!",
   "The Terrible Players",
   "Hup 2 3 4. Keep on wiping!!",
+  "Alright lads.....",
 ];
 let currentIndex = 0; // Initialize the index to 0
 setInterval(() => {
@@ -117,7 +119,7 @@ setInterval(() => {
   if (currentIndex >= activities.length) {
     currentIndex = 0;
   }
-}, 10000);
+}, 5000);
 
 // handle autocomplete
 client.on(Events.InteractionCreate, async (interaction) => {
@@ -265,6 +267,7 @@ client.on("interactionCreate", async (interaction) => {
           interaction.update({ components: [row1] }); */
   if (interaction.isButton()) {
     const id = interaction.customId;
+
     if (
       id === "regPart" ||
       id === "regSub" ||
@@ -887,6 +890,136 @@ client.on("interactionCreate", async (interaction) => {
         }
 
         interaction.editReply({ embeds: [embed] });
+      }
+    } else if (interaction.customId === "check") {
+      // make this work with the check command strinf select menu
+      const recruitChoice = interaction.values[0];
+
+      let data;
+      let recruit;
+      let recruitName;
+      let recruitIcon;
+      if (recruitChoice !== "all") {
+        recruit = await interaction.guild.members.fetch(recruitChoice);
+        recruitName = recruit.displayName;
+        recruitIcon = recruit.displayAvatarURL();
+        data = await recruitSchema.findOne({
+          RecruitID: recruitChoice,
+        });
+      } else {
+        data = await allRecruitsSchema.find();
+      }
+
+      const icon = interaction.guild.iconURL();
+
+      if (recruitChoice === "all") {
+        const loadEmbed = new EmbedBuilder()
+          .setColor("#ffd700")
+          .setDescription("Loading recruits...");
+        await interaction.update({ embeds: [loadEmbed] });
+        let description = "";
+        await data.forEach(async (doc) => {
+          description += `\n> <@${doc.RecruitID}>`;
+        });
+        const embed = new EmbedBuilder()
+          .setColor("#ffd700")
+          .setTitle("All Recruits")
+          .setDescription(description);
+        return interaction.editReply({ embeds: [embed] });
+      } else {
+        let row1;
+        if (interaction.message.components.length === 1) {
+          row1 = ActionRowBuilder.from(interaction.message.components[0]);
+        } else {
+          row1 = ActionRowBuilder.from(interaction.message.components[1]);
+        }
+        const tryoutAmount = data.Tryouts.length;
+        let totalTotal;
+        if (tryoutAmount === 3) {
+          totalTotal =
+            data.Tryouts[0].Total +
+            data.Tryouts[1].Total +
+            data.Tryouts[2].Total;
+        } else if (tryoutAmount === 2) {
+          totalTotal = data.Tryouts[0].Total + data.Tryouts[1].Total;
+        } else {
+          totalTotal = data.Tryouts[0].Total;
+        }
+
+        const contents = data.Tryouts;
+        let p = [];
+
+        for (const content of contents) {
+          const tryoutNum = content.TryoutNum;
+          const recruiterIdData = content.RecruiterID;
+          const tryoutDate = content.Date;
+          const vibe = content.Vibe;
+          const skill = content.Skill;
+          const strategy = content.Strategy;
+          const comment = content.Comment;
+          const total = content.Total;
+
+          const embed = new EmbedBuilder()
+            .setColor("#ffd700")
+            .addFields(
+              { name: "Session #", value: `**${tryoutNum}**`, inline: true },
+              { name: "Date", value: `**${tryoutDate}**`, inline: true },
+              {
+                name: "Recruiter",
+                value: `<@${recruiterIdData}>`,
+                inline: true,
+              },
+              { name: "Vibe", value: `${vibe}`, inline: true },
+              { name: "Skill", value: `${skill}`, inline: true },
+              { name: "Strategy", value: `${strategy}`, inline: true },
+              { name: "Comment", value: `${comment}` },
+              {
+                name: "Session Total:",
+                value: `${total}`,
+              }
+            )
+            .setThumbnail(`${recruitIcon}`);
+
+          if (tryoutAmount === 3) {
+            embed.setFooter({
+              text: `Page: ${tryoutNum}/${tryoutAmount + 1}`,
+            });
+            embed.setTitle(`**Final Sessions for ${recruitName}**`);
+          } else if (tryoutAmount === 2) {
+            embed.setFooter({
+              text: `Page: ${tryoutNum}/${tryoutAmount + 1}`,
+            });
+            embed.setTitle(
+              `**Current Sessions for ${recruitName}: ${tryoutAmount}**`
+            );
+          } else {
+            embed.setFooter({
+              text: `Page: ${tryoutNum}/${tryoutAmount}`,
+            });
+            embed.setTitle(`**First Session for ${recruitName}**`);
+          }
+
+          p.push(embed);
+        }
+
+        if (tryoutAmount !== 1) {
+          const totalEmbed = new EmbedBuilder()
+            .setColor("#ffd700")
+            .setDescription(`**${totalTotal}**`)
+            .setThumbnail(`${recruitIcon}`)
+            .setFooter({
+              text: `Page: ${tryoutAmount + 1}/${tryoutAmount + 1}`,
+            });
+          if (tryoutAmount === 3) {
+            totalEmbed.setTitle("**Final Tryout Score**");
+          } else {
+            totalEmbed.setTitle("**Current Tryout Score**");
+          }
+
+          p.push(totalEmbed);
+        }
+
+        await pageYes(p, interaction, row1, recruitName);
       }
     }
   }
