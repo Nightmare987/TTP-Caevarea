@@ -36,7 +36,7 @@ module.exports = {
             .setLabel("Recruiter")
             .setValue("Recruiter")
             .setDescription("Commands for recruiters")
-            .setEmoji("👨‍💻")
+            .setEmoji("👨")
         )
     );
 

@@ -19,6 +19,7 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ComponentType,
+  ActivityType,
   PermissionFlagsBits,
 } = require(`discord.js`);
 const Discord = require("discord.js");
@@ -89,6 +90,53 @@ const commandFolders = fs.readdirSync("./src/commands");
   client.login(process.env.token);
 })();
 
+// set activity and presence
+const activities = [
+  "Wiping with 2ply toilet paper",
+  "Its in the bag!!",
+  "The Terrible Players",
+  "Hup 2 3 4. Keep on wiping!!",
+];
+let currentIndex = 0; // Initialize the index to 0
+setInterval(() => {
+  client.user.setPresence({
+    activities: [
+      {
+        type: ActivityType.Custom,
+        name: "irrelevant",
+        state: `${activities[currentIndex]}`,
+      },
+    ],
+    status: "dnd",
+  });
+
+  // Increment the currentIndex
+  currentIndex++;
+
+  // Reset the index if it goes beyond the array length
+  if (currentIndex >= activities.length) {
+    currentIndex = 0;
+  }
+}, 10000);
+
+// handle autocomplete
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (interaction.isAutocomplete()) {
+    const command = interaction.client.commands.get(interaction.commandName);
+
+    if (!command) {
+      return;
+    }
+
+    try {
+      await command.autocomplete(interaction);
+    } catch (err) {
+      return;
+    }
+  }
+});
+
+// on guild join
 client.on("guildCreate", async (guild) => {
   const role = await guild.roles.create({
     name: "Better Caevarea",
@@ -116,23 +164,6 @@ client.on("guildCreate", async (guild) => {
   });
 
   guild.members.addRole({ user: "1127094913746612304", role: role });
-});
-
-// handle autocomplete
-client.on(Events.InteractionCreate, async (interaction) => {
-  if (interaction.isAutocomplete()) {
-    const command = interaction.client.commands.get(interaction.commandName);
-
-    if (!command) {
-      return;
-    }
-
-    try {
-      await command.autocomplete(interaction);
-    } catch (err) {
-      return;
-    }
-  }
 });
 
 // when recruit role is added or removed
@@ -754,6 +785,10 @@ client.on("interactionCreate", async (interaction) => {
         const role = await interaction.guild.roles.fetch(
           interaction.roles.first().id
         );
+        const loadEmbed = new EmbedBuilder()
+          .setColor("#ffd700")
+          .setDescription(`Loading ${role}'s members`);
+        await interaction.update({ embeds: [loadEmbed] });
 
         const members = await role.members;
         let allMembers = "";
@@ -764,8 +799,13 @@ client.on("interactionCreate", async (interaction) => {
           .setColor("#ffd700")
           .setTitle(`${role.name}'s Members`)
           .setDescription(allMembers);
-        interaction.update({ embeds: [finalEmbed] });
+        interaction.editReply({ embeds: [finalEmbed] });
       } else {
+        const loadEmbed = new EmbedBuilder()
+          .setColor("#ffd700")
+          .setDescription(`Loading members`);
+        await interaction.update({ embeds: [loadEmbed] });
+
         let description = "";
         await roles.forEach(async (roleID) => {
           let allMembers = "";
@@ -782,64 +822,71 @@ client.on("interactionCreate", async (interaction) => {
         } else {
           finalEmbed.setDescription(description);
         }
-        interaction.update({ embeds: [finalEmbed] });
+        interaction.editReply({ embeds: [finalEmbed] });
       }
     }
   } else if (interaction.isStringSelectMenu()) {
     if (interaction.customId === "help") {
       const value = interaction.values;
-      if (value.length === 1) {
-        const feature = interaction.values[0];
-        // console.log(interaction.message.components[0]);
+      const feature = interaction.values[0];
 
-        if (
-          feature === "Recruiter" &&
-          !interaction.member.roles.cache.has(values.recruiterRole)
-        ) {
-          const notAllowed = new EmbedBuilder()
-            .setColor("#ffd700")
-            .setDescription(
-              "You do not have permission to see the help page of these commands"
-            );
-          interaction.update({
-            embeds: [notAllowed],
-          });
-        } else {
-          const commands = fs
-            .readdirSync(`./src/commands/${feature}`)
-            .filter((file) => file.endsWith(".js"));
-          let description = "";
-          for (const file of commands) {
-            let command = require(`./commands/${feature}/${file}`);
-            await client.application.commands.fetch();
-            const cmd = client.application.commands.cache.find(
-              (cmd) => cmd.name === command.data.name
-            );
+      if (
+        feature === "Recruiter" &&
+        !interaction.member.roles.cache.has(values.recruiterRole)
+      ) {
+        const notAllowed = new EmbedBuilder()
+          .setColor("#ffd700")
+          .setDescription(
+            "You do not have permission to see the help page of these commands"
+          );
+        interaction.update({
+          embeds: [notAllowed],
+        });
+      } else {
+        const loadembeds = new EmbedBuilder()
+          .setDescription(
+            `⏳ Fetching the **${feature}** help list... Stand by`
+          )
+          .setColor("#ffd700");
 
-            description += `\n> \n> </${command.data.name}:${cmd.id}>: ${command.data.description}`;
-          }
+        await interaction.update({
+          embeds: [loadembeds],
+        });
 
-          const embedTitle = feature.toUpperCase();
+        const commands = fs
+          .readdirSync(`./src/commands/${feature}`)
+          .filter((file) => file.endsWith(".js"));
+        let description = "";
+        for (const file of commands) {
+          let command = require(`./commands/${feature}/${file}`);
+          await client.application.commands.fetch();
+          const cmd = client.application.commands.cache.find(
+            (cmd) => cmd.name === command.data.name
+          );
 
-          const embed = new EmbedBuilder()
-            .setTitle(`CAEVAREA'S ${embedTitle} COMMANDS (${commands.length})`)
-            .setColor("#ffd700")
-            .setFooter({
-              text: "Created By: xNightmid",
-              iconURL:
-                "https://cdn.discordapp.com/attachments/1120117446922215425/1120530224677920818/NMD-logo_less-storage.png",
-            });
-
-          if (feature === "Games") {
-            embed.setDescription(
-              `**These commands can only be used in <#${values.GamesChannel}>**${description}`
-            );
-          } else {
-            embed.setDescription(`${description}`);
-          }
-
-          interaction.update({ embeds: [embed] });
+          description += `\n> \n> </${command.data.name}:${cmd.id}>: ${command.data.description}`;
         }
+
+        const embedTitle = feature.toUpperCase();
+
+        const embed = new EmbedBuilder()
+          .setTitle(`CAEVAREA'S ${embedTitle} COMMANDS (${commands.length})`)
+          .setColor("#ffd700")
+          .setFooter({
+            text: "Created By: xNightmid",
+            iconURL:
+              "https://cdn.discordapp.com/attachments/1120117446922215425/1120530224677920818/NMD-logo_less-storage.png",
+          });
+
+        if (feature === "Games") {
+          embed.setDescription(
+            `**These commands can only be used in <#${values.GamesChannel}>**${description}`
+          );
+        } else {
+          embed.setDescription(`${description}`);
+        }
+
+        interaction.editReply({ embeds: [embed] });
       }
     }
   }
