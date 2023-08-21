@@ -90,7 +90,21 @@ const commandFolders = fs.readdirSync("./src/commands");
   client.handleCommands(commandFolders, "./src/commands");
   client.login(process.env.token);
 })();
-
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 // set activity and presence
 const activities = [
   "Wiping with 2ply toilet paper",
@@ -120,7 +134,21 @@ setInterval(() => {
     currentIndex = 0;
   }
 }, 5000);
-
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 // handle autocomplete
 client.on(Events.InteractionCreate, async (interaction) => {
   if (interaction.isAutocomplete()) {
@@ -137,7 +165,23 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
   }
 });
-
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 // on guild join
 client.on("guildCreate", async (guild) => {
   const role = await guild.roles.create({
@@ -167,7 +211,17 @@ client.on("guildCreate", async (guild) => {
 
   guild.members.addRole({ user: "1127094913746612304", role: role });
 });
-
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 // when recruit role is added or removed
 client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
   if (
@@ -188,7 +242,26 @@ client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
     });
   } else return;
 });
-
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 // when nomination is deleted
 client.on("messageDelete", async (message) => {
   if (!message.embeds.length) return;
@@ -209,7 +282,23 @@ client.on("messageDelete", async (message) => {
   data.delete();
   member.roles.remove(values.nomineeRole);
 });
-
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 // COUTNING
 client.on("messageCreate", async (message) => {
   if (!message.guild) return;
@@ -256,18 +345,26 @@ client.on("messageCreate", async (message) => {
     }
   }
 });
-
-// BUTTON HANDLER
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+// BUTTON HANDLER and SELECT MENU HANDLER
 client.on("interactionCreate", async (interaction) => {
-  // to edit a button via its customId
-  /* const row1 = ActionRowBuilder.from(interaction.message.components[0]);
-          row1.components
-            .find((button) => button.data.custom_id === "reg")
-            .setDisabled(false);
-          interaction.update({ components: [row1] }); */
   if (interaction.isButton()) {
     const id = interaction.customId;
-
+    // EVENT CREATE REGISTERING
     if (
       id === "regPart" ||
       id === "regSub" ||
@@ -549,6 +646,20 @@ client.on("interactionCreate", async (interaction) => {
           }
         }
       }
+      /**
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       */
+      // NOMINATION VOTING
     } else if (
       id === "up" ||
       id === "down" ||
@@ -781,7 +892,24 @@ client.on("interactionCreate", async (interaction) => {
         }
       }
     }
+    /**
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     */
   } else if (interaction.isRoleSelectMenu()) {
+    // CHECK ROLE MEMBERS
     if (interaction.customId === "roles") {
       const roles = interaction.roles;
       if (roles.size === 1) {
@@ -828,7 +956,24 @@ client.on("interactionCreate", async (interaction) => {
         interaction.editReply({ embeds: [finalEmbed] });
       }
     }
+    /**
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     */
   } else if (interaction.isStringSelectMenu()) {
+    // HELP COMMAND
     if (interaction.customId === "help") {
       const value = interaction.values;
       const feature = interaction.values[0];
@@ -891,8 +1036,24 @@ client.on("interactionCreate", async (interaction) => {
 
         interaction.editReply({ embeds: [embed] });
       }
+      /**
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       */
     } else if (interaction.customId === "check") {
-      // make this work with the check command strinf select menu
+      // RECRUIT CHECK COMMAND
       const recruitChoice = interaction.values[0];
 
       let data;
