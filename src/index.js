@@ -360,67 +360,6 @@ client.on("messageDelete", async (message) => {
  *
  *
  */
-// COUTNING
-client.on("messageCreate", async (message) => {
-  if (!message.guild) return;
-  if (message.author.bot) return;
-
-  const number = Number.parseInt(message.content);
-  if (Number.isNaN(number)) return;
-
-  const data = await counting.findOne({ Guild: message.guild.id });
-  if (!data) {
-    return;
-  } else {
-    if (message.channel.id !== values.CountingChannel) return;
-
-    if (data.LastUser === message.author.id) {
-      const embed = new EmbedBuilder()
-        .setColor("#a42a04")
-        .setDescription(
-          `<@${message.author.id}> You may not count after your own count`
-        );
-      const alert = await message.reply({ embeds: [embed] });
-      message.delete();
-
-      setTimeout(async () => {
-        alert.delete();
-      }, 3000);
-    } else if (number !== data.Number) {
-      const oldNumber = data.Number;
-      data.LastUser = "";
-      data.Number = 1;
-      data.save();
-      message.react("❌");
-      const embed = new EmbedBuilder()
-        .setColor("#a42a04")
-        .setDescription(
-          `<@${message.author.id}> counted **${number}** but should have counted **${oldNumber}**. The count has restarted and the next number is now **1**`
-        );
-      await message.reply({ embeds: [embed] });
-    } else {
-      await message.react("✅");
-      data.LastUser = message.author.id;
-      data.Number++;
-      await data.save();
-    }
-  }
-});
-/**
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- */
 // BUTTON HANDLER and SELECT MENU HANDLER
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isButton()) {

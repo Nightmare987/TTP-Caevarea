@@ -10,7 +10,6 @@ const values = {
   TS2Role: "1131749410850738326",
   TS3Role: "1131749411249205249",
   GamesChannel: "1138277700944023582",
-  CountingChannel: "1138174873412325457",
   EventsCategory: "1141135709953073173",
   EventsLogChannel: "1141163495539359836",
 };
