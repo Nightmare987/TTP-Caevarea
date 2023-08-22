@@ -108,6 +108,7 @@ const commandFolders = fs.readdirSync("./src/commands");
 // set activity and presence
 const activities = [
   "The Third Party",
+  "These jits 🤦‍♂️",
   "Wiping with 2ply toilet paper 🧻",
   "Flying V Formation 🦅",
   "Its in the bag!!",
@@ -117,7 +118,7 @@ const activities = [
   "Alright lads.....",
   "Where’s G? I’m on tower!",
   "💸 Tax The Poor 💸",
-  "Dipoot! Dipoot! 🏃🏻‍♂️💨",
+  "🏃🏻‍♂️💨 Dipoot! Dipoot! 🏃🏻‍♂️💨",
   "Taino time 😎",
 ];
 // random
