@@ -108,16 +108,34 @@ const commandFolders = fs.readdirSync("./src/commands");
 // set activity and presence
 const activities = [
   "The Third Party",
-  "Wiping with 2ply toilet paper",
+  "Wiping with 2ply toilet paper 🧻",
+  "Flying V Formation 🦅",
   "Its in the bag!!",
   "The Terrible Players",
   "Yo lads I'll be back in 15mins...",
   "Hup 2 3 4. Keep on wiping!!",
   "Alright lads.....",
-  "Tax The Poor 💸",
-  "Dipoot! Dipoot!",
-  "Taino time",
+  "Where’s G? I’m on tower!",
+  "💸 Tax The Poor 💸",
+  "Dipoot! Dipoot! 🏃🏻‍♂️💨",
+  "Taino time 😎",
 ];
+// random
+setInterval(() => {
+  const choice = activities[Math.floor(Math.random() * activities.length)];
+  client.user.setPresence({
+    activities: [
+      {
+        type: ActivityType.Custom,
+        name: "irrelevant",
+        state: `${choice}`,
+      },
+    ],
+    status: "dnd",
+  });
+}, 6000);
+
+/*in order of list
 let currentIndex = 0; // Initialize the index to 0
 setInterval(() => {
   client.user.setPresence({
@@ -138,7 +156,7 @@ setInterval(() => {
   if (currentIndex >= activities.length) {
     currentIndex = 0;
   }
-}, 5000);
+}, 6000); */
 /**
  *
  *
