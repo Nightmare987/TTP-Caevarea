@@ -111,8 +111,12 @@ const activities = [
   "Wiping with 2ply toilet paper",
   "Its in the bag!!",
   "The Terrible Players",
+  "Yo lads I'll be back in 15mins...",
   "Hup 2 3 4. Keep on wiping!!",
   "Alright lads.....",
+  "Tax The Poor 💸",
+  "Dipoot! Dipoot!",
+  "Taino time",
 ];
 let currentIndex = 0; // Initialize the index to 0
 setInterval(() => {
@@ -229,19 +233,52 @@ client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
     oldMember.roles.cache.has(values.recruitRole) &&
     !newMember.roles.cache.has(values.recruitRole)
   ) {
+    const fetchedLogs = await newMember.guild.fetchAuditLogs({
+      type: AuditLogEvent.MemberRoleUpdate,
+      limit: 1,
+    });
+    const firstEntry = fetchedLogs.entries.first();
+    const executorID = firstEntry.executorId;
+
     const data = await allRecruitsSchema.findOne({
       RecruitID: newMember.user.id,
     });
     await data.delete();
+    if (executorID !== "1127094913746612304") {
+      const embed = new EmbedBuilder()
+        .setColor("#ffd700")
+        .setDescription(
+          `<@${executorID}> has removed ${newMember}'s <@&${values.recruitRole}> role. They have been removed from all recruits, but their sessions (if they had any) have not been deleted. Add them back as a recruit, then use </terminate:1128111165764010079> to delete their data.`
+        );
+      const channel = client.channels.cache.get(values.recruiterChannel);
+      channel.send({ embeds: [embed] });
+    }
   } else if (
     !oldMember.roles.cache.has(values.recruitRole) &&
     newMember.roles.cache.has(values.recruitRole)
   ) {
+    const fetchedLogs = await newMember.guild.fetchAuditLogs({
+      type: AuditLogEvent.MemberRoleUpdate,
+      limit: 1,
+    });
+    const firstEntry = fetchedLogs.entries.first();
+    const executorID = firstEntry.executorId;
     await allRecruitsSchema.create({
       RecruitID: newMember.user.id,
       RecruitName: newMember.user.username,
     });
-  } else return;
+    if (executorID !== "1127094913746612304") {
+      const embed = new EmbedBuilder()
+        .setColor("#ffd700")
+        .setDescription(
+          `<@${executorID}> has given ${newMember} the <@&${values.recruitRole}> role`
+        );
+      const channel = client.channels.cache.get(values.recruiterChannel);
+      channel.send({ embeds: [embed] });
+    }
+  } else {
+    return;
+  }
 });
 /**
  *

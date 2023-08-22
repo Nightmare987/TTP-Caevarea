@@ -18,7 +18,7 @@ module.exports = {
   async execute(interaction, client) {
     const member = interaction.member;
     const data = await cooldownSchema.findOne({ UserID: interaction.user.id });
-    const time = 600;
+    const time = 43200;
 
     const now = Date.now();
     const cooldownAmount = time * 1000;
