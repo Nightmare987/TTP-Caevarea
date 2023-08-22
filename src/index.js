@@ -64,7 +64,6 @@ const client = new Client({
   restTimeOffset: 0,
 });
 const { values, pages, pageYes } = require("./variables");
-const counting = require("./Schemas.js/counting");
 const allRecruitsSchema = require("./Schemas.js/all-recruits");
 const recruitSchema = require("./Schemas.js/recruits");
 const eventsSchema = require("./Schemas.js/events");
