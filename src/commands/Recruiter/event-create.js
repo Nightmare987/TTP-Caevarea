@@ -59,6 +59,12 @@ module.exports = {
       });
     }
 
+    const loadEmbed = new EmbedBuilder()
+      .setColor("#ffd700")
+      .setDescription(`Creating **${eventName}**...`);
+
+    interaction.reply({ embeds: [loadEmbed], ephemeral: true });
+
     const partRole = await interaction.guild.roles.create({
       name: `${eventName} Participant`,
       color: "#C0C0C0",
@@ -135,9 +141,10 @@ module.exports = {
       ],
     });
 
-    interaction.reply({
-      content: `The event has been created: ${channel}`,
-      ephemeral: true,
+    loadEmbed.setDescription(`**${eventName}** has been created: ${channel}`);
+
+    interaction.editReply({
+      embeds: [loadEmbed],
     });
     const msg = await channel.send({
       embeds: [embed],
@@ -149,6 +156,7 @@ module.exports = {
       MessageID: msg.id,
       EventName: eventName,
       EventDate: eventDate,
+      ChannelID: channel.id,
       Owner: interaction.user.id,
       PartRole: partRole.id,
       SubRole: subRole.id,

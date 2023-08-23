@@ -4,6 +4,7 @@ let eventSchema = new Schema({
   MessageID: String,
   EventName: String,
   EventDate: String,
+  ChannelID: String,
   Owner: String,
   Size: Number,
   PartRole: String,
