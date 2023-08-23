@@ -100,57 +100,6 @@ const commandFolders = fs.readdirSync("./src/commands");
  *
  *
  *
- *
- *
- *
- */
-// set xnightmid rich presence
-const ID = "1127094913746612304";
-const DiscordRPC = require("discord-rpc");
-const RPC = new DiscordRPC.Client({ transport: "ipc" });
-
-DiscordRPC.register(ID);
-
-async function activity() {
-  if (!RPC) return;
-
-  RPC.setActivity({
-    details: "[CAVE-AR-EA]",
-    largeImageKey:
-      "https://cdn.discordapp.com/avatars/1127094913746612304/43b3c75be623c700872ff35256b4e61e.webp",
-    largeImageText: "Ceavarea",
-    instance: false,
-    startTimestamp: Date.now(),
-    buttons: [
-      {
-        label: "Ceavarea GitHub",
-        url: "https://github.com/Nightmare987/TTP-Caevarea",
-      },
-    ],
-  });
-}
-
-RPC.on("ready", async () => {
-  console.log("RPC Presence Up");
-  activity();
-
-  setInterval(() => {
-    activity();
-  }, 86400000);
-});
-
-RPC.login({ clientId: ID });
-/**
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
  */
 // set activity and presence
 const activities = [
