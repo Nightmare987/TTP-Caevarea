@@ -177,7 +177,8 @@ module.exports = {
     } else {
       recruit.roles.add(values.memberRole);
       dmEmbed.setDescription(
-        "We are glad to say that you have been accepted as a member of TTP. Welcome to the family"
+        "Congratulations! We are glad to say that you have been accepted as a member of TTP. Welcome to the family"
+        // add welcome to the family gif
       );
     }
     client.users.send(recruitID, { embeds: [dmEmbed] });

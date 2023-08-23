@@ -719,7 +719,7 @@ client.on("interactionCreate", async (interaction) => {
           );
         if (data.Upvote > data.Downvote) {
           dmEmbed.setDescription(
-            `Nice! You have passed the TTP nomination process and are now a official recruit!`
+            `Congratulations! You have passed the TTP nomination process and are now a official recruit!`
           );
           nomCompleteEmbed1.addFields({
             name: `Outcome`,
@@ -729,7 +729,7 @@ client.on("interactionCreate", async (interaction) => {
           member.roles.add(values.tryoutsHeaderRole);
         } else {
           dmEmbed.setDescription(
-            `Unfortunately, you did not pass the TTP nomination process.`
+            `Unfortunately, the recruiters at TTP have decided that this is not the right fit. Therefore you did not pass the TTP nomination process, and connot continue the recruitment process. Please feel free to stay in the discord server for casual communication and fun.`
           );
           nomCompleteEmbed1.addFields({
             name: `Outcome`,
@@ -948,9 +948,13 @@ client.on("interactionCreate", async (interaction) => {
 
         const members = await role.members;
         let allMembers = "";
+
         await members.forEach(async (member) => {
           allMembers += `\n> <@${member.id}> (${member.user.tag})`;
         });
+        if (allMembers === "") {
+          allMembers = "No members";
+        }
         const finalEmbed = new EmbedBuilder()
           .setColor("#ffd700")
           .setTitle(`${role.name}'s Members`)
@@ -968,6 +972,9 @@ client.on("interactionCreate", async (interaction) => {
           await roleID.members.forEach(async (member) => {
             allMembers += `\n> <@${member.id}> (${member.user.tag})`;
           });
+          if (allMembers === "") {
+            allMembers = "\n> No members";
+          }
           description += `\n\n**${roleID.name} (${roleID.members.size})**${allMembers}`;
         });
         const finalEmbed = new EmbedBuilder()
