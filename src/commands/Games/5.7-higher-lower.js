@@ -285,7 +285,7 @@ module.exports = {
             const editEmbed = new EmbedBuilder()
               .setColor("#5865F2")
               .setTitle("Higher or Lower")
-              .setDescription("The game has ended")
+              .setDescription("Both players must guess")
               .addFields(
                 { name: "Max", value: `${max}` },
                 {
@@ -314,6 +314,7 @@ module.exports = {
                 winner = `\`\`\`${opponent.displayName} is the winner!\`\`\``;
               }
 
+              editEmbed.setDescription("This game has ended");
               editEmbed.addFields(
                 {
                   name: "Jackpot",
