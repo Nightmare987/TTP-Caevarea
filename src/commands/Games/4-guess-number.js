@@ -21,7 +21,7 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    if (interaction.channel.id !== values.recruitChannel) {
+    if (interaction.channel.id !== values.GamesChannel) {
       return interaction.reply({
         content: `This command can only be used in <#${values.GamesChannel}>`,
         ephemeral: true,
