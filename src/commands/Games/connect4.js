@@ -46,7 +46,7 @@ module.exports = {
 
     Game.startGame();
     Game.on("gameOver", (result) => {
-      interaction.channel.send(`${result}`);
+      return;
     });
   },
 };
