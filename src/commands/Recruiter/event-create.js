@@ -147,6 +147,7 @@ module.exports = {
       embeds: [loadEmbed],
     });
     const msg = await channel.send({
+      content: `<@&${values.memberRole}>`,
       embeds: [embed],
       components: [row],
     });
