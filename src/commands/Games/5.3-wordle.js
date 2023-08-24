@@ -21,9 +21,9 @@ module.exports = {
       });
     }
 
-    const Gamex = new Wordle({
+    const Game = new Wordle({
       message: interaction,
-      isSlashGame: false,
+      isSlashGame: true,
       embed: {
         title: `Wordle`,
         color: "#5865F2",
@@ -35,8 +35,8 @@ module.exports = {
       playerOnlyMessage: "Only {player} cam ise these buttons",
     });
 
-    Gamex.startGame();
-    Gamex.on("gameOver", (result) => {
+    Game.startGame();
+    Game.on("gameOver", (result) => {
       return;
     });
   },
