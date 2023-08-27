@@ -140,8 +140,8 @@ module.exports = {
     interaction.editReply({
       embeds: [loadEmbed],
     });
-    // content: `<@&${values.memberRole}>`,
     const msg = await channel.send({
+      content: `<@&${values.memberRole}>`,
       embeds: [embed],
       components: [row],
     });
