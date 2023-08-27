@@ -34,8 +34,7 @@ module.exports = {
 
     const opponent = interaction.options.getMember("opponent") || null;
     const max = interaction.options.getInteger("max");
-    // const random = Number(Math.floor(Math.random() * (max - 0 + 1)));
-    const random = 50;
+    const random = Number(Math.floor(Math.random() * (max - 0 + 1)));
 
     if (opponent === null) {
       let guessesNum = 0;
