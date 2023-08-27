@@ -16,10 +16,7 @@ module.exports = {
             .setDescription(
               `I have sent a new embed to <@${message.channel.recipientId}> ⬇️`
             );
-          const botSentEmbed = new EmbedBuilder()
-            .setColor(message.embeds[0].hexColor)
-            .setTitle(message.embeds[0].title)
-            .setDescription(message.embeds[0].description);
+          const botSentEmbed = EmbedBuilder.from(message.embeds[0]);
 
           client.users.send("943623503624667237", {
             content: "<@943623503624667237>",

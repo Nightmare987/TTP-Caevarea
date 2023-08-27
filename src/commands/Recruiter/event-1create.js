@@ -38,7 +38,7 @@ module.exports = {
     )
     .addStringOption((option) =>
       option
-        .setName("message")
+        .setName("event-message")
         .setDescription(
           "The message to send with the event creation - Optional"
         )
@@ -50,7 +50,7 @@ module.exports = {
     const eventName = interaction.options.getString("event-name");
     const eventDate = interaction.options.getString("event-date");
     const eventSize = interaction.options.getInteger("event-size");
-    const eventMessage = interaction.options.getString("message");
+    const eventMessage = interaction.options.getString("event-message");
 
     if (!member.roles.cache.has(values.recruiterRole)) {
       return interaction.reply({
@@ -80,7 +80,7 @@ module.exports = {
       .setTitle(`${eventName}`)
       .setDescription(`**Date: ${eventDate}**\n**Size: ${eventSize}**`)
       .addFields({
-        name: "Creator",
+        name: "Owner",
         value: `${interaction.user}`,
         inline: false,
       })
@@ -88,7 +88,7 @@ module.exports = {
 
     if (eventMessage !== null) {
       embed.setFields(
-        { name: `Creator`, value: `${member}` },
+        { name: `Owner`, value: `${member}` },
         { name: `Message`, value: `${eventMessage}` }
       );
     }
@@ -110,18 +110,12 @@ module.exports = {
       .setEmoji("📃")
       .setCustomId("list")
       .setStyle(ButtonStyle.Success);
-    const complete = new ButtonBuilder()
-      .setLabel("Complete")
-      .setEmoji("✅")
-      .setCustomId("complete")
-      .setStyle(ButtonStyle.Secondary);
     // row
     const row = new ActionRowBuilder().addComponents(
       registerPart,
       registerSub,
       unregister,
-      list,
-      complete
+      list
     );
 
     // create channel
@@ -146,8 +140,8 @@ module.exports = {
     interaction.editReply({
       embeds: [loadEmbed],
     });
+    // content: `<@&${values.memberRole}>`,
     const msg = await channel.send({
-      content: `<@&${values.memberRole}>`,
       embeds: [embed],
       components: [row],
     });

@@ -394,8 +394,7 @@ client.on("interactionCreate", async (interaction) => {
       id === "regPart" ||
       id === "regSub" ||
       id === "unreg" ||
-      id === "list" ||
-      id === "complete"
+      id === "list"
     ) {
       const row1 = ActionRowBuilder.from(interaction.message.components[0]);
       const regPartButton = row1.components.find(
@@ -406,13 +405,7 @@ client.on("interactionCreate", async (interaction) => {
       });
       const partRole = await interaction.guild.roles.fetch(data.PartRole);
       const subRole = await interaction.guild.roles.fetch(data.SubRole);
-      if (!data) {
-        interaction.message.delete();
-        interaction.reply({
-          content: "This event no longer exists",
-          ephemeral: true,
-        });
-      } else {
+      if (data) {
         // register Participant
         if (id === "regPart") {
           if (data.Participants.includes(interaction.user.id)) {
@@ -475,12 +468,13 @@ client.on("interactionCreate", async (interaction) => {
               embeds: [embed],
               components: [row],
               ephemeral: true,
+              fetchReply: true,
             });
 
             // collectors
             const collector = msg.createMessageComponentCollector({
               componentType: ComponentType.Button,
-              time: 30000,
+              time: 60000,
             });
 
             collector.on("collect", async (i) => {
@@ -509,9 +503,7 @@ client.on("interactionCreate", async (interaction) => {
                   data.Participants.pull(i.user.id);
                   i.member.roles.remove(partRole);
                   data.Subs.push(i.user.id);
-                  i.member.roles.remove(subRole);
-
-                  collector.stop(i.customId);
+                  i.member.roles.add(subRole);
                 } else {
                   data.Participants.pull(interaction.user.id);
                   interaction.member.roles.remove(partRole);
@@ -521,14 +513,12 @@ client.on("interactionCreate", async (interaction) => {
                     `${i.user} has been moved from being a **participant** to a **sub** for **${data.EventName}**`
                   );
                   data.save();
-                  collector.stop(i.customId);
                 }
-              } else if (i.customId === "cancel") {
-                collector.stop(i.customId);
               }
+              collector.stop(i.customId);
             });
             collector.on("end", async (collected, reason) => {
-              msg.delete();
+              interaction.deleteReply();
             });
           } else {
             interaction.member.roles.add(subRole);
@@ -618,58 +608,6 @@ client.on("interactionCreate", async (interaction) => {
 
           await interaction.reply({ embeds: [embed], ephemeral: true });
         }
-        // complete
-        if (id === "complete") {
-          if (interaction.user.id !== data.Owner) {
-            return interaction.reply({
-              content: `Only <@${data.Owner}> can complete this event`,
-              ephemeral: true,
-            });
-          } else {
-            let participants = [];
-            await data.Participants.forEach(async (member) => {
-              participants.push(`<@${member}>`);
-            });
-
-            let subs = [];
-            await data.Subs.forEach(async (member) => {
-              subs.push(`<@${member}>`);
-            });
-
-            interaction.guild.roles.delete(data.PartRole);
-            interaction.guild.roles.delete(data.SubRole);
-            const eventName = data.EventName;
-            data.delete();
-
-            const embed = interaction.message.embeds[0];
-            const embedFinal = new EmbedBuilder()
-              .setColor("#ffd700")
-              .setTitle(`${data.EventName} List`)
-              .addFields(
-                {
-                  name: `Participants (${participants.length})`,
-                  value: `> ${
-                    participants.join("\n> ").slice(0, 1020) ||
-                    "No participants"
-                  }`,
-                  inline: true,
-                },
-                {
-                  name: `Subs (${subs.length})`,
-                  value: `> ${subs.join("\n> ").slice(0, 1020) || "No Subs"}`,
-                  inline: true,
-                }
-              );
-
-            const logChannel = await interaction.guild.channels.fetch(
-              values.EventsLogChannel
-            );
-            interaction.channel.delete();
-            logChannel.send({
-              embeds: [embed, embedFinal],
-            });
-          }
-        }
       }
       /**
        *
@@ -677,6 +615,9 @@ client.on("interactionCreate", async (interaction) => {
        *
        *
        *
+       * 
+       * 
+       * 
        *
        *
        *

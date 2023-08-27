@@ -213,7 +213,7 @@ module.exports = {
       let totalTotal =
         data.Tryouts[0].Total + data.Tryouts[1].Total + data.Tryouts[2].Total;
       await interaction.channel.send({
-        content: `<@&${values.recruiterRole}>\n**${recruitName}** has completed their third session and finished with a total score of **${totalTotal}**. Use </check:1128111165764010076> to see their final data.`,
+        content: `<@&${values.recruiterRole}>\n**${recruit}** has completed their third session and finished with a total score of **${totalTotal}**. Use </check:1128111165764010076> to see their final data.`,
       });
     }
   },

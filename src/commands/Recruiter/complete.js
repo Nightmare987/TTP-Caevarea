@@ -95,12 +95,12 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setColor("#ffd700")
-      .setTitle(`Final Tryout Results for ${recruitName}`)
+      .setTitle(`Final Tryout Results for ${recruit.user.tag}`)
       .setAuthor({
         name: `${recruiterName}`,
         iconURL: `${recruiterIcon}`,
       })
-      .setDescription(`Here are all three of ${recruitName}'s sessions`)
+      .setDescription(`Here are all three of ${recruit}'s sessions`)
       .setThumbnail(`${recruitIcon}`);
 
     for (const content of contents) {
@@ -178,7 +178,9 @@ module.exports = {
       recruit.roles.add(values.memberRole);
       dmEmbed.setDescription(
         "Congratulations! We are glad to say that you have been accepted as a member of TTP. Welcome to the family"
-        // add welcome to the family gif
+      );
+      dmEmbed.setImage(
+        "https://media.tenor.com/AvRN6GlmzXsAAAAC/the-god-father-marlon-brando.gif"
       );
     }
     client.users.send(recruitID, { embeds: [dmEmbed] });
