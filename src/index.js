@@ -112,8 +112,11 @@ const activities = [
   "Yoink!",
   "Its in the bag!!",
   "The Terrible Players",
+  "Call me the pizza man...",
+  "...because I always deliver",
   "Oi dickhead 🐷",
   "Yo lads I'll be back in 15mins...",
+  "Don't tempt me with a good time!",
   "Hup 2 3 4. Keep on wiping!!",
   "Alright lads.....",
   "Where’s G? I’m on tower!",
@@ -615,9 +618,9 @@ client.on("interactionCreate", async (interaction) => {
        *
        *
        *
-       * 
-       * 
-       * 
+       *
+       *
+       *
        *
        *
        *
