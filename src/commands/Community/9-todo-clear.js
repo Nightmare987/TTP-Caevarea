@@ -4,7 +4,7 @@ const todoSchema = require("../../Schemas.js/todo");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("todo-clear")
-    .setDescription("Clear all your tasks from your to-do list"),
+    .setDescription("Clear all tasks from your to-do list"),
   async execute(interaction) {
     const { options, user, member } = interaction;
 

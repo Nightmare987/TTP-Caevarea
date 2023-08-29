@@ -7,7 +7,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("available")
     .setDescription(
-      "Let recruiters know that you are available and looking for tryout session(s)"
+      "Let recruiters know that you are available and looking for tryout session(s) - (recruit only)"
     )
     .addStringOption((option) =>
       option
