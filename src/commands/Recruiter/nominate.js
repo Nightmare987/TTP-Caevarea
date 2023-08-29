@@ -11,7 +11,7 @@ const { values } = require("../../variables");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("nominate")
-    .setDescription("Create a poll")
+    .setDescription("Create a poll to nominate a user")
     .addUserOption((option) =>
       option
         .setName("user")
