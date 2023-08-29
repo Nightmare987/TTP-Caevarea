@@ -20,7 +20,7 @@ module.exports = {
 
     if (/([A-Za-z0-9]+(-[A-Za-z0-9]+)+)/.test(friendCode) === false) {
       interaction.reply({
-        content: `Your input, **${friendcode}**, was not valid`,
+        content: `Your input, **${friendCode}**, was not valid`,
       });
     } else {
       const data = await friendSchema.findOne({ UserID: interaction.user.id });
