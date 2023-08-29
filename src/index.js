@@ -286,18 +286,23 @@ client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
     oldMember.roles.cache.has(values.recruitRole) &&
     !newMember.roles.cache.has(values.recruitRole)
   ) {
+    // on remove
     const fetchedLogs = await newMember.guild.fetchAuditLogs({
       type: AuditLogEvent.MemberRoleUpdate,
       limit: 1,
     });
     const firstEntry = fetchedLogs.entries.first();
     const executorID = firstEntry.executorId;
+    const targetID = firstEntry.targetId;
 
     const data = await allRecruitsSchema.findOne({
       RecruitID: newMember.user.id,
     });
     await data.delete();
-    if (executorID !== "1127094913746612304") {
+    if (
+      executorID !== "1127094913746612304" &&
+      targetID !== "1127094913746612304"
+    ) {
       const embed = new EmbedBuilder()
         .setColor("#ffd700")
         .setDescription(
@@ -310,17 +315,22 @@ client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
     !oldMember.roles.cache.has(values.recruitRole) &&
     newMember.roles.cache.has(values.recruitRole)
   ) {
+    // on add
     const fetchedLogs = await newMember.guild.fetchAuditLogs({
       type: AuditLogEvent.MemberRoleUpdate,
       limit: 1,
     });
     const firstEntry = fetchedLogs.entries.first();
     const executorID = firstEntry.executorId;
+    const targetID = firstEntry.targetId;
     await allRecruitsSchema.create({
       RecruitID: newMember.user.id,
       RecruitName: newMember.user.username,
     });
-    if (executorID !== "1127094913746612304") {
+    if (
+      executorID !== "1127094913746612304" &&
+      targetID !== "1127094913746612304"
+    ) {
       const embed = new EmbedBuilder()
         .setColor("#ffd700")
         .setDescription(
