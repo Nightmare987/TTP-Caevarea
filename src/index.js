@@ -20,6 +20,8 @@ const {
   ButtonBuilder,
   ComponentType,
   ActivityType,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
   PermissionFlagsBits,
 } = require(`discord.js`);
 const Discord = require("discord.js");
@@ -1058,11 +1060,39 @@ client.on("interactionCreate", async (interaction) => {
         await data.forEach(async (doc) => {
           description += `\n> <@${doc.RecruitID}>`;
         });
-        const embed = new EmbedBuilder()
-          .setColor("#ffd700")
-          .setTitle("All Recruits")
-          .setDescription(description);
-        return interaction.editReply({ embeds: [embed] });
+        let embed;
+        if (description === "") {
+          embed = new EmbedBuilder()
+            .setColor("#ffd700")
+            .setDescription(`There are currently no recruits`);
+        } else {
+          embed = new EmbedBuilder()
+            .setColor("#ffd700")
+            .setTitle(`All Recruits(${data.length})`)
+            .setDescription(description);
+        }
+        const docs = await recruitSchema.find();
+
+        const options = docs.map((doc) => {
+          return new StringSelectMenuOptionBuilder()
+            .setLabel(`${doc.RecruitName}`)
+            .setValue(`${doc.RecruitID}`);
+        });
+        options.push(
+          new StringSelectMenuOptionBuilder()
+            .setLabel("All Recruits")
+            .setValue("all")
+        );
+
+        const row1 = new ActionRowBuilder().addComponents(
+          new StringSelectMenuBuilder()
+            .setCustomId("check")
+            .setPlaceholder("Select a recruit...")
+            .setMinValues(1)
+            .setMaxValues(1)
+            .addOptions(options)
+        );
+        return interaction.editReply({ embeds: [embed], components: [row1] });
       } else {
         let row1;
         if (interaction.message.components.length === 1) {
