@@ -3,7 +3,6 @@ const { values } = require("../../variables");
 const cooldownSchema = require("../../Schemas.js/cooldown");
 
 module.exports = {
-  cooldown: 3600,
   data: new SlashCommandBuilder()
     .setName("available")
     .setDescription(

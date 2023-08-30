@@ -6,16 +6,38 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("friend-code-get")
     .setDescription("Get your or another users friend code")
-    .addUserOption((option) =>
+    .addStringOption((option) =>
       option
         .setName("user")
         .setDescription("The user to get the friend code for")
+        .setAutocomplete(true)
     ),
 
-  async execute(interaction) {
-    const user = interaction.options.getMember("user");
+  async autocomplete(interaction) {
+    const value = interaction.options.getFocused().toLowerCase();
+    const docs = await friendSchema.find();
 
-    if (user === null) {
+    let choices = [];
+    await docs.forEach(async (doc) => {
+      choices.push({ name: doc.UserName, id: doc.UserID });
+    });
+
+    const filtered = choices.filter((choice) =>
+      choice.name.toLowerCase().includes(value)
+    );
+
+    if (!interaction) return;
+
+    await interaction.respond(
+      filtered.map((choice) => ({ name: choice.name, value: choice.id }))
+    );
+  },
+
+  async execute(interaction) {
+    const userString = interaction.options.getString("user");
+    const user = await interaction.guild.members.fetch(userString);
+
+    if (userString === null) {
       const data = await friendSchema.findOne({ UserID: interaction.user.id });
       if (!data) {
         interaction.reply({
