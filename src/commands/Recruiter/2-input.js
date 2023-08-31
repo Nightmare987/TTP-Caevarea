@@ -184,17 +184,14 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setColor("#ffd700")
-      .setTitle(`New Session Input for ${recruitName}`)
+      .setTitle(`Session #${tryoutAmount + 1} Input`)
       .setAuthor({
         name: `${recruiterName}`,
         iconURL: `${recruiterIcon}`,
       })
       .setThumbnail(`${recruitIcon}`)
       .addFields(
-        { name: "Session #", value: `${tryoutAmount + 1}` },
-        { name: "Recruiter", value: `<@${recruiterID}>`, inline: true },
-        { name: "Recruit", value: `<@${recruitID}>`, inline: true },
-        { name: "\u200B", value: "\u200B", inline: true },
+        { name: "Recruit", value: `<@${recruitID}>` },
         { name: "Vibe", value: `${vibe}`, inline: true },
         { name: "Skill", value: `${skill}`, inline: true },
         { name: "Strategy", value: `${strategy}`, inline: true },
@@ -213,7 +210,7 @@ module.exports = {
       let totalTotal =
         data.Tryouts[0].Total + data.Tryouts[1].Total + data.Tryouts[2].Total;
       await interaction.channel.send({
-        content: `**${recruit}** has completed their third session and finished with a total score of **${totalTotal}**. Use </check:1128111165764010076> to see their final data.`,
+        content: `**${recruit}** has completed their third session and finished with a total score of **${totalTotal}**. Use </check:1145867530032910396> to see their final data.`,
       });
     }
   },

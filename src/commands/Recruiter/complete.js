@@ -103,29 +103,32 @@ module.exports = {
       .setDescription(`Here are all three of ${recruit}'s sessions`)
       .setThumbnail(`${recruitIcon}`);
 
+    let embeds = [];
     for (const content of contents) {
       const tryoutNum = content.TryoutNum;
-      const recruiterNameData = content.RecruiterName;
+      const recruiterNameData = content.RecruiterID;
       const tryoutDate = content.Date;
       const vibe = content.Vibe;
       const skill = content.Skill;
       const strategy = content.Strategy;
+      const comment = content.Comment;
       const total = content.Total;
 
-      embed.addFields(
-        { name: "\u200B", value: "\u200B" },
-        { name: "Session #", value: `**${tryoutNum}**`, inline: true },
-        { name: "Date", value: `**${tryoutDate}**`, inline: true },
-        {
-          name: "Recruiter",
-          value: `**${recruiterNameData}**`,
-          inline: true,
-        },
-        { name: "Vibe", value: `${vibe}`, inline: true },
-        { name: "Skill", value: `${skill}`, inline: true },
-        { name: "Strategy", value: `${strategy}`, inline: true },
-        { name: "Session Total:", value: `${total}` }
-      );
+      const embed = new EmbedBuilder()
+        .setColor("#ffd700")
+        .setTitle(`**Session #${tryoutNum}**`)
+        .addFields(
+          {
+            name: "Recruiter",
+            value: `<@${recruiterNameData}>`,
+          },
+          { name: "Vibe", value: `${vibe}`, inline: true },
+          { name: "Skill", value: `${skill}`, inline: true },
+          { name: "Strategy", value: `${strategy}`, inline: true },
+          { name: "Comment", value: `${comment}` },
+          { name: "Session Total:", value: `${total}` }
+        );
+      embeds.push(embed);
     }
     let status;
     if (passed === false) {
@@ -145,13 +148,12 @@ module.exports = {
         iconURL:
           "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
       });
+    embeds.push(totalEmbed);
 
-    await recruitSchema.findOneAndDelete({
-      RecruitID: recruitID,
-    });
+    data.delete();
 
     const final = await interaction.reply({
-      embeds: [embed, totalEmbed],
+      embeds: embeds,
       fetchReply: true,
     });
     final.pin();

@@ -298,7 +298,7 @@ client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
     const data = await allRecruitsSchema.findOne({
       RecruitID: newMember.user.id,
     });
-    await data.delete();
+    data.delete();
     if (
       executorID !== "1127094913746612304" &&
       targetID !== "1127094913746612304"
@@ -722,6 +722,7 @@ client.on("interactionCreate", async (interaction) => {
               inline: true,
             }
           );
+        data.delete();
         interaction.channel.send({
           content: `<@&${values.recruiterRole}>`,
           embeds: [nomCompleteEmbed1, nomCompleteEmbed2],
@@ -1059,8 +1060,6 @@ client.on("interactionCreate", async (interaction) => {
         data = await allRecruitsSchema.find();
       }
 
-      const icon = interaction.guild.iconURL();
-
       if (recruitChoice === "all") {
         const loadEmbed = new EmbedBuilder()
           .setColor("#ffd700")
@@ -1138,13 +1137,11 @@ client.on("interactionCreate", async (interaction) => {
 
           const embed = new EmbedBuilder()
             .setColor("#ffd700")
+            .setTitle(`Session #${tryoutNum}`)
             .addFields(
-              { name: "Session #", value: `**${tryoutNum}**`, inline: true },
-              { name: "Date", value: `**${tryoutDate}**`, inline: true },
               {
                 name: "Recruiter",
                 value: `<@${recruiterIdData}>`,
-                inline: true,
               },
               { name: "Vibe", value: `${vibe}`, inline: true },
               { name: "Skill", value: `${skill}`, inline: true },
@@ -1161,19 +1158,14 @@ client.on("interactionCreate", async (interaction) => {
             embed.setFooter({
               text: `Page: ${tryoutNum}/${tryoutAmount + 1}`,
             });
-            embed.setTitle(`**Final Sessions for ${recruitName}**`);
           } else if (tryoutAmount === 2) {
             embed.setFooter({
               text: `Page: ${tryoutNum}/${tryoutAmount + 1}`,
             });
-            embed.setTitle(
-              `**Current Sessions for ${recruitName}: ${tryoutAmount}**`
-            );
           } else {
             embed.setFooter({
               text: `Page: ${tryoutNum}/${tryoutAmount}`,
             });
-            embed.setTitle(`**First Session for ${recruitName}**`);
           }
 
           p.push(embed);
@@ -1183,7 +1175,6 @@ client.on("interactionCreate", async (interaction) => {
           const totalEmbed = new EmbedBuilder()
             .setColor("#ffd700")
             .setDescription(`**${totalTotal}**`)
-            .setThumbnail(`${recruitIcon}`)
             .setFooter({
               text: `Page: ${tryoutAmount + 1}/${tryoutAmount + 1}`,
             });

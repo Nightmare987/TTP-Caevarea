@@ -51,12 +51,6 @@ module.exports = {
 
     member.roles.add(values.nomineeRole);
 
-    const startMessage = await interaction.reply({
-      content: `start`,
-      ephemeral: true,
-    });
-    setTimeout(() => startMessage.delete(), 100);
-
     const embed = new EmbedBuilder()
       .setColor("#ffd700")
       .setTitle("New Recruit Nomination")
@@ -68,7 +62,6 @@ module.exports = {
       )
       .setTimestamp();
 
-    let votebutton;
     const buttons = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setCustomId("up")
@@ -82,11 +75,11 @@ module.exports = {
         .setEmoji("📉")
         .setStyle(ButtonStyle.Primary),
 
-      (votebutton = new ButtonBuilder()
+      new ButtonBuilder()
         .setCustomId("votes")
         .setLabel("Votes")
         .setEmoji("📃")
-        .setStyle(ButtonStyle.Success)),
+        .setStyle(ButtonStyle.Success),
       new ButtonBuilder()
         .setCustomId("nominate")
         .setLabel("Nominate")
@@ -94,7 +87,7 @@ module.exports = {
         .setStyle(ButtonStyle.Secondary)
     );
 
-    const massage = await interaction.channel.send({
+    const massage = await interaction.reply({
       content: `<@&${values.recruiterRole}>`,
       embeds: [embed],
       components: [buttons],
