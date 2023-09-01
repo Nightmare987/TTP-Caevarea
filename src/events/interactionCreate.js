@@ -8,10 +8,6 @@ const {
 module.exports = {
   name: "interactionCreate",
   async execute(interaction, client) {
-    const member = interaction.member;
-    const commandID = interaction.commandId;
-    const commandNAME = interaction.commandName;
-
     const dmEmbed = new EmbedBuilder()
       .setDescription("**Caevarea cannot be used DMs**")
       .setColor("#A42A04");

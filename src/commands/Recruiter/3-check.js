@@ -31,6 +31,7 @@ module.exports = {
     options.push(
       new StringSelectMenuOptionBuilder()
         .setLabel("All Recruits")
+        .setDescription("Shows a list of all current recruits")
         .setValue("all")
     );
 

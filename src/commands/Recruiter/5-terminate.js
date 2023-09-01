@@ -81,6 +81,9 @@ module.exports = {
     if (!data) {
       recruit.roles.remove(values.recruitRole);
       recruit.roles.remove(values.tryoutsHeaderRole);
+      recruit.roles.remove(values.TS1Role);
+      recruit.roles.remove(values.TS2Role);
+      recruit.roles.remove(values.TS3Role);
       return interaction.reply(
         `${recruit} is no longer a recruit. They did not have any tryout sessions`
       );
@@ -115,6 +118,7 @@ module.exports = {
         embeds: [embed],
         components: [row],
         ephemeral: true,
+        fetchReply: true,
       });
 
       const collector = confirmMessage.createMessageComponentCollector({
@@ -134,7 +138,7 @@ module.exports = {
           recruit.roles.remove(values.TS2Role);
           recruit.roles.remove(values.TS3Role);
 
-          confirmMessage.delete();
+          interaction.deleteReply();
           const confirmEmbed = new EmbedBuilder()
             .setColor("#ffd700")
             .setDescription(
@@ -144,8 +148,8 @@ module.exports = {
             content: `<@&${values.recruiterRole}>`,
             embeds: [confirmEmbed],
           });
-          collector.stop();
         }
+
         if (i.customId === "cancel") {
           const cancelEmbed = new EmbedBuilder()
             .setColor("#ffd700")
@@ -162,8 +166,8 @@ module.exports = {
             components: [],
             ephemeral: true,
           });
-          collector.stop();
         }
+        collector.stop();
       });
     }
   },

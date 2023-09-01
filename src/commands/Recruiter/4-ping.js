@@ -17,7 +17,7 @@ module.exports = {
     const member = interaction.member;
 
     const customMessage = interaction.options.getString("message");
-    const memberID = interaction.member.id;
+    const memberID = member.id;
 
     if (!member.roles.cache.has(values.recruiterRole)) {
       return interaction.reply({
@@ -35,21 +35,21 @@ module.exports = {
     const recruitEmbed = new EmbedBuilder()
       .setColor("#ffd700")
       .setTitle("RECRUITER ANNOUNCEMENT")
-      .setDescription(`**Author:** <@${memberID}>`)
+      .setDescription(`**Author:** ${member}`)
       .addFields({ name: "Message", value: `${customMessage}` });
 
     const sentEmbed = new EmbedBuilder()
       .setColor("#ffd700")
       .setDescription(
-        `You have pinged all recruits in <#${values.recruitChannel}>`
+        `You have pinged all recruits in <#${values.recruitChannel}> with the following embed ⬇️`
       );
 
-    const channel = client.channels.cache.get(values.recruitChannel);
+    const channel = interaction.guild.channels.fetch(values.recruitChannel);
     channel.send({
       content: `<@&${values.recruitRole}>`,
       embeds: [recruitEmbed],
     });
 
-    interaction.reply({ embeds: [sentEmbed], ephemeral: true });
+    interaction.reply({ embeds: [sentEmbed, recruitEmbed], ephemeral: true });
   },
 };
