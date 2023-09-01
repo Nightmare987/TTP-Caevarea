@@ -93,16 +93,6 @@ module.exports = {
 
     const contents = data.Tryouts;
 
-    const embed = new EmbedBuilder()
-      .setColor("#ffd700")
-      .setTitle(`Final Tryout Results for ${recruit.user.tag}`)
-      .setAuthor({
-        name: `${recruiterName}`,
-        iconURL: `${recruiterIcon}`,
-      })
-      .setDescription(`Here are all three of ${recruit}'s sessions`)
-      .setThumbnail(`${recruitIcon}`);
-
     let embeds = [];
     for (const content of contents) {
       const tryoutNum = content.TryoutNum;
