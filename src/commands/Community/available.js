@@ -40,42 +40,48 @@ module.exports = {
       });
     }
 
-    if (data && now < data.CooldownTime) {
-      const expiredTimestamp = Math.round(data.CooldownTime / 1000);
-      return interaction.reply({
-        content: `You are on a cooldown. You can use this command again <t:${expiredTimestamp}:R>.`,
-        ephemeral: true,
-      });
-    } else if (data && now > data.CooldownTime) {
-      data.delete();
-    }
-
-    await cooldownSchema.create({
-      UserID: interaction.user.id,
-      CooldownTime: expirationTime,
-    });
-
-    const recruiterEmbed = new EmbedBuilder()
-      .setColor("#ffd700")
-      .setTitle("TRYOUT SESSION NEEDED")
-      .setThumbnail(`${memberAvatar}`)
-      .setDescription(`**Recruit:** <@${memberID}>`)
-      .addFields({ name: "Message", value: `${customMessage || "None"}` });
-
-    const sentEmbed = new EmbedBuilder().setColor("#ffd700");
-
-    if (customMessage === null) {
-      sentEmbed.setDescription("A message has been sent to the recruiters");
+    if (data) {
+      if (now < data.CooldownTime) {
+        const expiredTimestamp = Math.round(data.CooldownTime / 1000);
+        return interaction.reply({
+          content: `You are on a cooldown. You can use this command again <t:${expiredTimestamp}:R>.`,
+          ephemeral: true,
+        });
+      }
     } else {
-      sentEmbed.setDescription(`Your message has been sent to the recruiters`);
+      const datta = await cooldownSchema.create({
+        UserID: interaction.user.id,
+        UserName: interaction.user.tag,
+        CooldownTime: expirationTime,
+      });
+      setTimeout(() => {
+        datta.delete();
+      }, cooldownAmount);
+
+      const recruiterEmbed = new EmbedBuilder()
+        .setColor("#ffd700")
+        .setTitle("TRYOUT SESSION NEEDED")
+        .setThumbnail(`${memberAvatar}`)
+        .setDescription(`**Recruit:** <@${memberID}>`)
+        .addFields({ name: "Message", value: `${customMessage || "None"}` });
+
+      const sentEmbed = new EmbedBuilder().setColor("#ffd700");
+
+      if (customMessage === null) {
+        sentEmbed.setDescription("A message has been sent to the recruiters");
+      } else {
+        sentEmbed.setDescription(
+          `Your message has been sent to the recruiters`
+        );
+      }
+
+      const channel = interaction.guild.channels.fetch(values.recruiterChannel);
+      channel.send({
+        content: `<@&${values.recruiterRole}>`,
+        embeds: [recruiterEmbed],
+      });
+
+      interaction.reply({ embeds: [sentEmbed], ephemeral: true });
     }
-
-    const channel = interaction.guild.channels.fetch(values.recruiterChannel);
-    channel.send({
-      content: `<@&${values.recruiterRole}>`,
-      embeds: [recruiterEmbed],
-    });
-
-    interaction.reply({ embeds: [sentEmbed], ephemeral: true });
   },
 };

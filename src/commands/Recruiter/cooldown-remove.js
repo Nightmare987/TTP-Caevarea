@@ -21,9 +21,7 @@ module.exports = {
 
     let choices = [];
     await docs.forEach(async (doc) => {
-      const recruit = await interaction.guild.members.fetch(doc.UserID);
-      const username = recruit.user.username;
-      choices.push({ name: username, id: doc.UserID });
+      choices.push({ name: doc.UserName, id: doc.UserID });
     });
 
     const filtered = choices.filter((choice) =>
