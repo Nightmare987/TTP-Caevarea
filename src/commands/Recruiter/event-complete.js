@@ -22,13 +22,13 @@ module.exports = {
 
     if (!data) {
       return interaction.reply({
-        content: `This channel is not an event channel`,
+        content: `${interaction.channel} is not an event channel`,
         ephemeral: true,
       });
     } else {
       if (interaction.user.id !== data.Owner) {
         return interaction.reply({
-          content: `You cannot use this command as you are not the owner of this event`,
+          content: `You cannot use this command as you are not the owner of ${interaction.channel}`,
           ephemeral: true,
         });
       }

@@ -586,7 +586,7 @@ client.on("interactionCreate", async (interaction) => {
             data.save();
           } else {
             interaction.reply({
-              content: `Your are not registered for this event`,
+              content: `You are not registered for this event`,
               ephemeral: true,
             });
           }

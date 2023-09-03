@@ -65,6 +65,8 @@ module.exports = {
       );
       const copyEmbed = EmbedBuilder.from(fetchMessage.embeds[0]);
 
+      let changed;
+
       if (eventName !== null) {
         data.EventName = eventName;
         copyEmbed.setTitle(`${eventName}`);
@@ -75,6 +77,7 @@ module.exports = {
         partRole.setName(`${eventName} Participant`);
         subRole.setName(`${eventName} Sub`);
         interaction.channel.setName(`${eventName}`);
+        changed += `\n> Name of channel set to ${interaction.channel} and names of event roles changed to ${partRole} and ${subRole}`;
       }
 
       if (eventDate !== null) {
@@ -82,6 +85,7 @@ module.exports = {
           `**Date: ${eventDate}**\n**Size: ${data.Size}**`
         );
         data.EventDate = eventDate;
+        changed += `\n> Event date set to **${eventDate}**`;
       }
 
       if (eventMessage !== null) {
@@ -89,13 +93,20 @@ module.exports = {
           { name: `Creator`, value: `<@${data.Owner}>` },
           { name: `Message`, value: `${eventMessage}` }
         );
+        changed += `\n> Event message`;
       }
 
       data.save();
 
+      const replyEmbed = new EmbedBuilder()
+        .setColor("#ffd700")
+        .setTitle("Editing Complete")
+        .setDescription(`${fetchMessage.url}`)
+        .setFields({ name: "· Changes", value: `${changed}` });
+
       fetchMessage.edit({ embeds: [copyEmbed] });
       interaction.reply({
-        content: `Your changes have been made: ${fetchMessage.url}`,
+        embeds: [replyEmbed],
         ephemeral: true,
       });
     }

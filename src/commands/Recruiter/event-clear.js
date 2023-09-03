@@ -24,7 +24,7 @@ module.exports = {
 
     if (!data) {
       return interaction.reply({
-        content: `This channel is not an event channel`,
+        content: `${interaction.channel} is not an event channel`,
         ephemeral: true,
       });
     } else {
