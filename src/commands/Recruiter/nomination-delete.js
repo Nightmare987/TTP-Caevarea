@@ -11,7 +11,7 @@ const { values } = require("../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("nomination-terminate")
+    .setName("nomination-delete")
     .setDescription("Delete a nomination poll via its main message's link")
     .addStringOption((option) =>
       option
@@ -95,6 +95,7 @@ module.exports = {
       embeds: [embed],
       components: [row],
       ephemeral: true,
+      fetchReply: true,
     });
 
     const collector = confirmMessage.createMessageComponentCollector({
@@ -116,11 +117,11 @@ module.exports = {
             { name: "Reason", value: `**${reason}**`, inline: false }
           );
 
-        confirmMessage.delete();
+        data.delete();
+        interaction.deleteReply();
         message1.delete();
 
         interaction.channel.send({
-          content: `<@&${values.recruiterRole}>`,
           embeds: [greenEmbed],
         });
       }

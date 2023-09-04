@@ -91,8 +91,9 @@ module.exports = {
       content: `<@&${values.recruiterRole}>`,
       embeds: [embed],
       components: [buttons],
+      fetchReply: true,
     });
-    await massage.pin();
+    massage.pin();
 
     await pollSchema.create({
       Msg: massage.id,

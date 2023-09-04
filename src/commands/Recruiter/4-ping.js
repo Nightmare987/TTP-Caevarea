@@ -44,7 +44,9 @@ module.exports = {
         `You have pinged all recruits in <#${values.recruitChannel}> with the following embed ⬇️`
       );
 
-    const channel = interaction.guild.channels.fetch(values.recruitChannel);
+    const channel = await interaction.guild.channels.fetch(
+      values.recruitChannel
+    );
     channel.send({
       content: `<@&${values.recruitRole}>`,
       embeds: [recruitEmbed],

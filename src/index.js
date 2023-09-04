@@ -106,6 +106,7 @@ const commandFolders = fs.readdirSync("./src/commands");
 // set activity and presence
 const activities = [
   "Made by xNightmid",
+  "Snipey Snipey Bulldogs",
   "The Third Party",
   "These jits 🤦‍♂️",
   "Wiping with 2ply toilet paper 🧻",

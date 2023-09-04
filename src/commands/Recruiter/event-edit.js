@@ -29,7 +29,7 @@ module.exports = {
 
     const eventName = interaction.options.getString("event-name");
     const eventDate = interaction.options.getString("event-date");
-    const eventMessage = interaction.options.getString("message");
+    const eventMessage = interaction.options.getString("event-message");
 
     if (!member.roles.cache.has(values.recruiterRole)) {
       return interaction.reply({
@@ -65,7 +65,7 @@ module.exports = {
       );
       const copyEmbed = EmbedBuilder.from(fetchMessage.embeds[0]);
 
-      let changed;
+      let changed = "";
 
       if (eventName !== null) {
         data.EventName = eventName;
@@ -77,7 +77,7 @@ module.exports = {
         partRole.setName(`${eventName} Participant`);
         subRole.setName(`${eventName} Sub`);
         interaction.channel.setName(`${eventName}`);
-        changed += `\n> Name of channel set to ${interaction.channel} and names of event roles changed to ${partRole} and ${subRole}`;
+        changed += `\n> Name of channel set to ${interaction.channel}\n> Names of event roles changed to ${partRole} and ${subRole}`;
       }
 
       if (eventDate !== null) {
