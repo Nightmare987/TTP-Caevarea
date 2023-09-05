@@ -965,7 +965,6 @@ client.on("interactionCreate", async (interaction) => {
   } else if (interaction.isStringSelectMenu()) {
     // HELP COMMAND
     if (interaction.customId === "help") {
-      const value = interaction.values;
       const feature = interaction.values[0];
 
       if (
@@ -975,15 +974,18 @@ client.on("interactionCreate", async (interaction) => {
         const notAllowed = new EmbedBuilder()
           .setColor("#ffd700")
           .setDescription(
-            "You do not have permission to see the help page of these commands"
+            "You do not have permission to see the Recruiter help page"
           );
-        interaction.update({
+        return interaction.update({
           embeds: [notAllowed],
         });
       } else {
+        const emoji = interaction.guild.emojis.cache.find(
+          (emoji) => emoji.name === "loading"
+        );
         const loadembeds = new EmbedBuilder()
           .setDescription(
-            `⏳ Fetching the **${feature}** help list... Stand by`
+            `${emoji} Fetching the **${feature}** help list... Stand by ${emoji}`
           )
           .setColor("#ffd700");
 
@@ -991,30 +993,70 @@ client.on("interactionCreate", async (interaction) => {
           embeds: [loadembeds],
         });
 
-        const commands = fs
-          .readdirSync(`./src/commands/${feature}`)
-          .filter((file) => file.endsWith(".js"));
         let description = "";
-        for (const file of commands) {
-          let command = require(`./commands/${feature}/${file}`);
-          await client.application.commands.fetch();
-          const cmd = client.application.commands.cache.find(
-            (cmd) => cmd.name === command.data.name
-          );
-
-          description += `\n> \n> </${command.data.name}:${cmd.id}>: ${command.data.description}`;
-        }
-
         const embedTitle = feature.toUpperCase();
+        const embed = new EmbedBuilder().setColor("#ffd700").setFooter({
+          text: "Created By: xNightmid",
+          iconURL:
+            "https://cdn.discordapp.com/attachments/1120117446922215425/1120530224677920818/NMD-logo_less-storage.png",
+        });
 
-        const embed = new EmbedBuilder()
-          .setTitle(`CAEVAREA'S ${embedTitle} COMMANDS (${commands.length})`)
-          .setColor("#ffd700")
-          .setFooter({
-            text: "Created By: xNightmid",
-            iconURL:
-              "https://cdn.discordapp.com/attachments/1120117446922215425/1120530224677920818/NMD-logo_less-storage.png",
-          });
+        if (feature === "Recruiter") {
+          // system
+          let systemDes = "";
+          const system = fs
+            .readdirSync(`./src/commands/Recruiter/System`)
+            .filter((file) => file.endsWith(".js"));
+          for (const file of system) {
+            let command = require(`./commands/Recruiter/System/${file}`);
+            await client.application.commands.fetch();
+            const cmd = client.application.commands.cache.find(
+              (cmd) => cmd.name === command.data.name
+            );
+
+            systemDes += `\n> \n> </${command.data.name}:${cmd.id}>: ${command.data.description}`;
+          }
+
+          // other
+          let otherDes = "";
+          const other = fs
+            .readdirSync(`./src/commands/Recruiter/Other`)
+            .filter((file) => file.endsWith(".js"));
+          for (const file of other) {
+            let command = require(`./commands/Recruiter/Other/${file}`);
+            await client.application.commands.fetch();
+            const cmd = client.application.commands.cache.find(
+              (cmd) => cmd.name === command.data.name
+            );
+
+            otherDes += `\n> \n> </${command.data.name}:${cmd.id}>: ${command.data.description}`;
+          }
+
+          description = `**System(${system.length})**${systemDes}\n\n**Other(${other.length})**${otherDes}`;
+
+          embed.setTitle(
+            `CAEVAREA'S ${embedTitle} COMMANDS (${
+              system.length + other.length
+            })`
+          );
+        } else {
+          const commands = fs
+            .readdirSync(`./src/commands/${feature}`)
+            .filter((file) => file.endsWith(".js"));
+          for (const file of commands) {
+            let command = require(`./commands/${feature}/${file}`);
+            await client.application.commands.fetch();
+            const cmd = client.application.commands.cache.find(
+              (cmd) => cmd.name === command.data.name
+            );
+
+            description += `\n> \n> </${command.data.name}:${cmd.id}>: ${command.data.description}`;
+          }
+
+          embed.setTitle(
+            `CAEVAREA'S ${embedTitle} COMMANDS (${commands.length})`
+          );
+        }
 
         if (feature === "Games") {
           embed.setDescription(
@@ -1026,6 +1068,7 @@ client.on("interactionCreate", async (interaction) => {
 
         interaction.editReply({ embeds: [embed] });
       }
+
       /**
        *
        *

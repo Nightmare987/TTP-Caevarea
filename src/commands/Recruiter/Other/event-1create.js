@@ -7,8 +7,8 @@ const {
   ChannelType,
   PermissionFlagsBits,
 } = require("discord.js");
-const eventsSchema = require("../../Schemas.js/events");
-const { values } = require("../../variables");
+const eventsSchema = require("../../../Schemas.js/events");
+const { values } = require("../../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()

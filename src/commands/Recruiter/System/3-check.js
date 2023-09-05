@@ -5,8 +5,8 @@ const {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } = require("discord.js");
-const recruitSchema = require("../../Schemas.js/recruits");
-const { values, pages } = require("../../variables");
+const recruitSchema = require("../../../Schemas.js/recruits");
+const { values, pages } = require("../../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()

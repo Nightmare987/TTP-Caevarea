@@ -6,9 +6,9 @@ const {
   ActionRowBuilder,
   ComponentType,
 } = require("discord.js");
-const recruitSchema = require("../../Schemas.js/recruits");
-const allRecruitsSchema = require("../../Schemas.js/all-recruits");
-const { values } = require("../../variables");
+const recruitSchema = require("../../../Schemas.js/recruits");
+const allRecruitsSchema = require("../../../Schemas.js/all-recruits");
+const { values } = require("../../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()

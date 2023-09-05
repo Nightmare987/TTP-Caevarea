@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const { values } = require("../../variables");
+const { values } = require("../../../variables");
 
 module.exports = {
   cooldown: 3600,

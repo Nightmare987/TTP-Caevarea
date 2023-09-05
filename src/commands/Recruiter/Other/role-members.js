@@ -4,7 +4,7 @@ const {
   ActionRowBuilder,
   RoleSelectMenuBuilder,
 } = require("discord.js");
-const { values } = require("../../variables");
+const { values } = require("../../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()

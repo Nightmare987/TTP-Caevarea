@@ -6,9 +6,9 @@ const {
   TextInputBuilder,
   TextInputStyle,
 } = require("discord.js");
-const allRecruitsSchema = require("../../Schemas.js/all-recruits");
-const recruitSchema = require("../../Schemas.js/recruits");
-const { values } = require("../../variables");
+const allRecruitsSchema = require("../../../Schemas.js/all-recruits");
+const recruitSchema = require("../../../Schemas.js/recruits");
+const { values } = require("../../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()

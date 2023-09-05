@@ -6,8 +6,8 @@ const {
   ActionRowBuilder,
   ComponentType,
 } = require("discord.js");
-const pollSchema = require("../../Schemas.js/votes");
-const { values } = require("../../variables");
+const pollSchema = require("../../../Schemas.js/votes");
+const { values } = require("../../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()
