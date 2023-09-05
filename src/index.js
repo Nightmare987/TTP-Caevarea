@@ -915,9 +915,31 @@ client.on("interactionCreate", async (interaction) => {
         }
         const finalEmbed = new EmbedBuilder()
           .setColor("#ffd700")
-          .setTitle(`${role.name}'s Members`)
-          .setDescription(allMembers);
-        interaction.editReply({ embeds: [finalEmbed] });
+          .setTitle(`${role.name}'s Members(${role.members.size})`);
+
+        if (allMembers.length > 4096) {
+          const lines = allMembers.split("\n");
+          let chars = 0;
+
+          const line = lines.findIndex((l) => {
+            chars += l.length;
+            if (chars > 4000) return l;
+          });
+
+          const str2 = lines.splice(line).join("\n");
+          const str1 = lines.join("\n");
+
+          finalEmbed.setDescription(str1);
+          const secondEmbed = new EmbedBuilder()
+            .setColor("#ffd700")
+            .setTitle(`${role.name}'s Members Continuation`)
+            .setDescription(str2);
+
+          interaction.editReply({ embeds: [finalEmbed, secondEmbed] });
+        } else {
+          finalEmbed.setDescription(allMembers);
+          interaction.editReply({ embeds: [finalEmbed] });
+        }
       } else {
         const loadEmbed = new EmbedBuilder()
           .setColor("#ffd700")
@@ -938,12 +960,29 @@ client.on("interactionCreate", async (interaction) => {
         const finalEmbed = new EmbedBuilder()
           .setColor("#ffd700")
           .setTitle(`Selected Roles Members`);
+
         if (description.length > 4096) {
-          finalEmbed.setDescription(`The character length is too long`);
+          const lines = description.split("\n");
+          let chars = 0;
+
+          const line = lines.findIndex((l) => {
+            chars += l.length;
+            if (chars > 4000) return l;
+          });
+
+          const str2 = lines.splice(line).join("\n");
+          const str1 = lines.join("\n");
+
+          finalEmbed.setDescription(str1);
+          const secondEmbed = new EmbedBuilder()
+            .setColor("#ffd700")
+            .setTitle(`Selected Roles Members Continuation`)
+            .setDescription(str2);
+          interaction.editReply({ embeds: [finalEmbed, secondEmbed] });
         } else {
           finalEmbed.setDescription(description);
+          interaction.editReply({ embeds: [finalEmbed] });
         }
-        interaction.editReply({ embeds: [finalEmbed] });
       }
     }
     /**
