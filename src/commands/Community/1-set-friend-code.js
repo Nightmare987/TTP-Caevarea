@@ -4,7 +4,7 @@ const friendSchema = require("../../Schemas.js/friend");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("friend-code-set")
+    .setName("set-friend-code")
     .setDescription("Set your friend code")
     .addStringOption((option) =>
       option
@@ -68,7 +68,6 @@ module.exports = {
         const friendCodeUp = friendCode.toUpperCase();
         friendSchema.create({
           UserID: user.id,
-          UserName: user.user.tag,
           Code: friendCodeUp,
         });
         interaction.reply({

@@ -4,7 +4,7 @@ const friendSchema = require("../../Schemas.js/friend");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("friend-code-delete")
+    .setName("delete-friend-code")
     .setDescription("Delete your friend code"),
 
   async execute(interaction) {

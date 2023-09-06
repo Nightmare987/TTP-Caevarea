@@ -4,7 +4,7 @@ const friendSchema = require("../../Schemas.js/friend");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("friend-code-get")
+    .setName("get-friend-code")
     .setDescription("Get your or another users friend code")
     .addStringOption((option) =>
       option
@@ -19,7 +19,8 @@ module.exports = {
 
     let choices = [];
     await docs.forEach(async (doc) => {
-      choices.push({ name: doc.UserName, id: doc.UserID });
+      const userName = await interaction.guild.members.fetch(doc.UserID);
+      choices.push({ name: userName.user.displayName, id: doc.UserID });
     });
 
     const filtered = choices.filter((choice) =>
