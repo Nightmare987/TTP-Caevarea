@@ -120,9 +120,7 @@ module.exports = {
     }
 
     if (tryoutAmount === 3) {
-      redEmbed.setDescription(
-        `**${recruitName}** already has 3 sessions inputted`
-      );
+      redEmbed.setDescription(`**${recruit}** already has 3 sessions inputted`);
       return interaction.reply({
         embeds: [redEmbed],
         ephemeral: true,
@@ -136,7 +134,10 @@ module.exports = {
     const creatingEmbed = new EmbedBuilder()
       .setColor("#ffd700")
       .setDescription(`${emoji} Inputting data for ${recruit} ${emoji}`);
-    interaction.reply({ embeds: [creatingEmbed] });
+    await interaction.reply({
+      embeds: [creatingEmbed],
+      fetchReply: true,
+    });
 
     const tryoutDate = new Date(
       interaction.createdTimestamp
@@ -207,7 +208,7 @@ module.exports = {
           "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
       });
 
-    interaction.editReply({ embeds: [embed] });
+    await interaction.editReply({ embeds: [embed] });
 
     if (tryoutAmount === 2) {
       let totalTotal =
