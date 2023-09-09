@@ -1,11 +1,4 @@
-const {
-  SlashCommandBuilder,
-  EmbedBuilder,
-  ActionRowBuilder,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-} = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const allRecruitsSchema = require("../../../Schemas.js/all-recruits");
 const recruitSchema = require("../../../Schemas.js/recruits");
 const { values } = require("../../../variables");
@@ -135,6 +128,16 @@ module.exports = {
         ephemeral: true,
       });
     }
+
+    const emoji = interaction.guild.emojis.cache.find(
+      (emoji) => emoji.name === "loading"
+    );
+
+    const creatingEmbed = new EmbedBuilder()
+      .setColor("#ffd700")
+      .setDescription(`${emoji} Inputting data for ${recruit} ${emoji}`);
+    interaction.reply({ embeds: [creatingEmbed] });
+
     const tryoutDate = new Date(
       interaction.createdTimestamp
     ).toLocaleDateString();
@@ -204,13 +207,13 @@ module.exports = {
           "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
       });
 
-    interaction.reply({ embeds: [embed] });
+    interaction.editReply({ embeds: [embed] });
 
     if (tryoutAmount === 2) {
       let totalTotal =
         data.Tryouts[0].Total + data.Tryouts[1].Total + data.Tryouts[2].Total;
       await interaction.channel.send({
-        content: `**${recruit}** has completed their third session and finished with a total score of **${totalTotal}**. Use </check:1145867530032910396> to see their final data.`,
+        content: `**${recruit}** has completed their third session and finished with a total score of **${totalTotal}**. Use </check:1148395148535931030> to see their final data.`,
       });
     }
   },
