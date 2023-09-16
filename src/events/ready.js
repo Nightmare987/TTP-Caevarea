@@ -6,8 +6,6 @@ module.exports = {
   name: "ready",
   once: true,
   async execute(client) {
-    console.log("Ready!");
-
     if (!mongodbURL) return;
 
     await mongoose.connect(mongodbURL || "", {
@@ -16,7 +14,11 @@ module.exports = {
     });
 
     if (mongoose.connect) {
-      console.log("The database is running");
+      console.log("\x1b[1m\x1b[34mThe database is running\x1b[0m");
     }
+
+    console.log(
+      "\x1b[1m\x1b[33m<{=========}---Caevarea Ready---{=========}>\x1b[0m"
+    );
   },
 };
