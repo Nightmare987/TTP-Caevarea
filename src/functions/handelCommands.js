@@ -51,7 +51,7 @@ module.exports = (client) => {
           "\x1b[1m\x1b[34mSuccessfully reloaded application (/) commands.\x1b[0m"
         );
       } catch (error) {
-        console.error(error);
+        console.error(`\x1b[31m${error}\x1b[0m`);
       }
     })();
   };

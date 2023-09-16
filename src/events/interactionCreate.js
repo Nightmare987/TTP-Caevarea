@@ -28,7 +28,7 @@ module.exports = {
     try {
       await command.execute(interaction, client);
     } catch (error) {
-      console.log(error);
+      console.log(`\x1b[31m${error}\x1b[0m`);
       await interaction.reply({
         content: "There was an error while executing this command!",
         ephemeral: true,
