@@ -32,7 +32,7 @@ module.exports = {
 
     while (progress <= maxProgress50) {
       console.log(
-        `\x1b[1;2m\x1b[32mDatabase Connecting: ${progressBar(progress)}\x1b[0m`
+        `\x1b[1m\x1b[32mDatabase Connecting: ${progressBar(progress)}\x1b[0m`
       );
       await new Promise((resolve) => setTimeout(resolve, 75));
       progress += progressUpdateInterval;
@@ -45,7 +45,7 @@ module.exports = {
 
     while (progress <= maxProgress100) {
       console.log(
-        `\x1b[1;2m\x1b[32mDatabase Connecting: ${progressBar(progress)}\x1b[0m`
+        `\x1b[1m\x1b[32mDatabase Connecting: ${progressBar(progress)}\x1b[0m`
       );
       await new Promise((resolve) => setTimeout(resolve, 75));
       progress += progressUpdateInterval;
