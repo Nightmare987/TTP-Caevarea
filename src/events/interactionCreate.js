@@ -19,8 +19,6 @@ module.exports = {
 
     if (!interaction.isCommand()) return;
 
-    interaction.channel.sendTyping();
-
     const command = client.commands.get(interaction.commandName);
 
     if (!command) return;
