@@ -14,6 +14,45 @@ const values = {
   EventsLogChannel: "1144022193873891429",
 };
 
+const fs = require("fs");
+const path = require("path");
+function makeFile(error) {
+  const folderPath = "./src/errors/";
+
+  // format date
+  const now = new Date();
+  now.setHours(now.getHours() - 5); // Adjust to Central Standard Time (CST)
+  const isoString = now.toISOString();
+
+  // Extract date and time components
+  const [datePart, timePart] = isoString.split("T");
+  let [date, time] = [datePart, timePart.split(".")[0]];
+  date = date.slice(5);
+
+  // Format the time in 12-hour format
+  const [hour, minute, second] = time.split(":");
+  const ampm = parseInt(hour) >= 12 ? "PM" : "AM";
+  const formattedHour = parseInt(hour) % 12 || 12;
+
+  // Create the custom formatted string
+  const fileName = `${date} T-${formattedHour}-${minute}-${second}${ampm}.txt`;
+
+  //const fileName = `${currentdate.getDay()}-${currentdate.getMonth()}-${currentdate.getFullYear()}---${currentdate.getHours()}-${currentdate.getMinutes()}-${currentdate.getSeconds()}.txt`;
+  // Create a file in the specified folder and write the error message to it
+  const filePath = path.join(folderPath, fileName);
+  const errStr = error.toString();
+  fs.writeFile(filePath, errStr, (err) => {
+    if (err) {
+      console.error("Error writing error message to file:", err);
+    } else {
+      console.log(
+        `\x1b[1m\x1b[32mError message saved to:   ${filePath}\x1b[0m`
+      );
+    }
+  });
+  return [fileName, filePath];
+}
+
 const {
   ButtonBuilder,
   ButtonStyle,
@@ -210,4 +249,4 @@ async function pageYes(pages, interaction, more, add) {
   });
 }
 
-module.exports = { values, pages, pageYes };
+module.exports = { values, pages, pageYes, makeFile };

@@ -1,6 +1,7 @@
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 const fs = require("fs");
+const { makeFile } = require("../variables");
 
 const clientId = "1127094913746612304";
 const guildId = "855072789987459123";
@@ -52,6 +53,8 @@ module.exports = (client) => {
         );
       } catch (error) {
         console.error(`\x1b[31m${error}\x1b[0m`);
+
+        makeFile(error);
       }
     })();
   };

@@ -874,6 +874,40 @@ client.on("interactionCreate", async (interaction) => {
           CheckVotes();
         }
       }
+      /**
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       *
+       */
+      // ERROR FILE DELETE
+    } else if (id === "fileDel") {
+      // delete file
+      const message = interaction.message;
+      const path = `./src/errors/${message.embeds[0].fields[1].value.slice(
+        3,
+        -3
+      )}`;
+      fs.unlink(path, (err) => {
+        if (err) {
+          return;
+        }
+      });
+
+      const embed = new EmbedBuilder()
+        .setColor("Yellow")
+        .setDescription("This file has been deleted");
+      interaction.update({
+        embeds: [message.embeds[0], embed],
+        components: [],
+      });
+      console.log(`\x1b[1m\x1b[32mError file deleted:   ${path}\x1b[0m`);
     }
     /**
      *
