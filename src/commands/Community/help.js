@@ -40,7 +40,7 @@ module.exports = {
         )
     );
 
-    const finalEmbed = new EmbedBuilder()
+    const finalEmbed = new MessageBuilder()
       .setColor("#ffd700")
       .setDescription("Select a topic to see its commands");
     interaction.reply({

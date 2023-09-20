@@ -52,9 +52,9 @@ module.exports = (client) => {
           "\x1b[1m\x1b[34mSuccessfully reloaded application (/) commands   |\n--------------------------------------------------\x1b[0m\n"
         );
       } catch (error) {
-        console.error(`\x1b[31m${error}\x1b[0m`);
+        console.error(`\x1b[31m${error.stack}\x1b[0m`);
 
-        makeFile(error);
+        makeFile(error.stack);
       }
     })();
   };

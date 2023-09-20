@@ -32,9 +32,9 @@ module.exports = {
     try {
       await command.execute(interaction, client);
     } catch (error) {
-      console.log(`\x1b[31m${error}\x1b[0m`);
+      console.log(`\x1b[31m${error.stack}\x1b[0m`);
 
-      const [fileName, filePath] = makeFile(error);
+      const [fileName, filePath] = makeFile(error.stack);
 
       await interaction.reply({
         content: "There was an error while executing this command!",
