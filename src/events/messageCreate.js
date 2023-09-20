@@ -8,9 +8,14 @@ const {
 module.exports = {
   name: "messageCreate",
   async execute(message, client) {
-    if (message.channel.type === ChannelType.DM) {
-      if (message.channel.id !== "1132139803555680306") {
-        if (message.embeds.length > 0) {
+    if (
+      message.channel.type === ChannelType.DM &&
+      message.channel.id !== "1132139803555680306"
+    ) {
+      if (message.embeds.length > 0) {
+        if (
+          message.embeds[0].description !== "**Caevarea cannot be used in DMs**"
+        ) {
           const newMessage = new EmbedBuilder()
             .setColor("#ffd700")
             .setDescription(
@@ -22,32 +27,32 @@ module.exports = {
             content: "<@943623503624667237>",
             embeds: [newMessage, botSentEmbed],
           });
-        } else {
-          let embedLogs = new EmbedBuilder()
-            .setColor("#ffd700")
-            .setTitle(`💬・New DM message!`)
-            .setDescription(`Bot has received a new DM message!`)
-            .addFields(
-              {
-                name: "Dm Sent By",
-                value: `${message.author} (${message.author.tag})`,
-              },
-              {
-                name: `Message`,
-                value: `\`\`\`${message.content || "None"}\`\`\``,
-              }
-            )
-            .setTimestamp();
-
-          if (message.attachments.size > 0)
-            embedLogs.addFields({
-              name: `📃┆Attachments`,
-              value: `${message.attachments.first()?.url}`,
-              inline: false,
-            });
-
-          client.users.send("943623503624667237", { embeds: [embedLogs] });
         }
+      } else {
+        let embedLogs = new EmbedBuilder()
+          .setColor("#ffd700")
+          .setTitle(`💬・New DM message!`)
+          .setDescription(`Bot has received a new DM message!`)
+          .addFields(
+            {
+              name: "Dm Sent By",
+              value: `${message.author} (${message.author.tag})`,
+            },
+            {
+              name: `Message`,
+              value: `\`\`\`${message.content || "None"}\`\`\``,
+            }
+          )
+          .setTimestamp();
+
+        if (message.attachments.size > 0)
+          embedLogs.addFields({
+            name: `📃┆Attachments`,
+            value: `${message.attachments.first()?.url}`,
+            inline: false,
+          });
+
+        client.users.send("943623503624667237", { embeds: [embedLogs] });
         message.react("✅");
       }
     }

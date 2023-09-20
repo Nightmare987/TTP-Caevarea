@@ -14,9 +14,9 @@ module.exports = {
   name: "interactionCreate",
   async execute(interaction, client) {
     const dmEmbed = new EmbedBuilder()
-      .setDescription("**Caevarea cannot be used DMs**")
+      .setDescription("**Caevarea cannot be used in DMs**")
       .setColor("#A42A04");
-    if (!interaction.guild && interaction.user.id !== "943623503624667237") {
+    if (!interaction.guild && !interaction.isButton()) {
       return interaction.reply({
         embeds: [dmEmbed],
         ephemeral: true,
