@@ -89,6 +89,7 @@ module.exports = {
         const embed = EmbedBuilder.from(i.message.embeds[0]);
         embed.setFields({ name: "Insult", value: `**${random.Insult}**` });
         i.update({ embeds: [embed] });
+        collector.resetTimer();
       } else if (i.customId === "send") {
         const maker = await interaction.guild.members.fetch(random.UserID);
         const embed = new EmbedBuilder()

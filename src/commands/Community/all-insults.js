@@ -16,7 +16,6 @@ module.exports = {
     }
 
     const data = await insultSchema.find();
-    let size = 0;
 
     const insultPromises = data.map(async (doc) => {
       const maker = await interaction.guild.members.fetch(doc.UserID);
