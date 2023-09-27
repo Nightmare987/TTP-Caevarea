@@ -9,6 +9,7 @@
   "author": "xNightmid",
   "license": "ISC",
   "dependencies": {
+    "canvas": "^2.11.2",
     "discord-gamecord": "^4.4.1",
     "discord.js": "^14.13.0",
     "dotenv": "^16.3.1",
