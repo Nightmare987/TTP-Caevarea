@@ -42,6 +42,7 @@ module.exports = {
       option
         .setName("comment")
         .setDescription("A comment for this session - Optional")
+        .setMaxLength(175)
     ),
 
   async autocomplete(interaction) {

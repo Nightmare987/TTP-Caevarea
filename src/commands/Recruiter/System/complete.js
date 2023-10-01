@@ -44,18 +44,12 @@ module.exports = {
     const member = interaction.member;
 
     const passed = interaction.options.getBoolean("passed");
-    const channelSend = client.channels.cache.get(interaction.channel.id);
 
     const recruitString = interaction.options.getString("recruit");
 
     const recruit = await interaction.guild.members.fetch(recruitString);
     const recruitID = recruit.id;
     const recruitName = recruit.displayName;
-    const recruitIcon = recruit.displayAvatarURL();
-
-    const recruiterID = interaction.user.id;
-    const recruiterName = interaction.user.username;
-    const recruiterIcon = interaction.user.avatarURL();
 
     const data = await recruitSchema.findOne({
       RecruitID: recruitID,

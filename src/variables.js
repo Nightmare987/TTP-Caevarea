@@ -59,6 +59,7 @@ const {
   ActionRowBuilder,
   ComponentType,
   EmbedBuilder,
+  AttachmentBuilder,
 } = require("discord.js");
 
 async function pages(pages, interaction, more) {
@@ -248,5 +249,183 @@ async function pageYes(pages, interaction, more, add) {
       .catch(null);
   });
 }
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+// CANVAS
+const { createCanvas, loadImage } = require("canvas");
+async function canvas(
+  sessionNum,
+  avatarUrl,
+  recruiter,
+  vibeScore,
+  skillScore,
+  strategyScore,
+  comment
+) {
+  const canvas = createCanvas(939, 624);
+  const ctx = canvas.getContext("2d");
 
-module.exports = { values, pages, pageYes, makeFile };
+  function x(base) {
+    const ratio = base / 3756;
+    return canvas.width * ratio;
+  }
+
+  function y(base) {
+    const ratio = base / 2496;
+    return canvas.height * ratio;
+  }
+
+  const normalFontSize = y(150);
+
+  function TextSpacement(base) {
+    return base + y(200);
+  }
+
+  // Function to split text into lines and render them
+  function wrapText(context, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(" ");
+    let line = "";
+
+    for (let i = 0; i < words.length; i++) {
+      const testLine = line + words[i] + " ";
+      const testWidth = context.measureText(testLine).width;
+      if (testWidth > maxWidth && i > 0) {
+        context.fillText(line, x, y);
+        line = words[i] + " ";
+        y += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+
+    context.fillText(line, x, y);
+  }
+
+  function roundedRect(ctx, x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  // Function to calculate the text width
+  function getTextWidth(text, font) {
+    ctx.font = font;
+    return ctx.measureText(text).width;
+  }
+
+  // background
+  const bgImage = await loadImage("./src/vines.png");
+  const hRatio = canvas.width / bgImage.width;
+  const vRatio = canvas.height / bgImage.height;
+  const ratio = Math.max(hRatio, vRatio);
+  const centerShift_x = (canvas.width - bgImage.width * ratio) / 2;
+  const centerShift_y = (canvas.height - bgImage.height * ratio) / 2;
+  ctx.drawImage(
+    bgImage,
+    0,
+    0,
+    bgImage.width,
+    bgImage.height,
+    centerShift_x,
+    centerShift_y,
+    bgImage.width * ratio,
+    bgImage.height * ratio
+  );
+  ctx.rect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.70)";
+  ctx.fill();
+
+  //avatar
+  const avatarImage = await loadImage(avatarUrl);
+
+  ctx.save();
+  roundedRect(ctx, x(2506), y(150), x(1100), y(1100), 0.03 * x(1100));
+  ctx.clip();
+  ctx.fillStyle = "rgba(255, 255, 255, 1)";
+  ctx.fillRect(x(2506), y(150), x(1100), y(1100));
+  ctx.restore();
+
+  ctx.save();
+  roundedRect(ctx, x(2556), y(200), x(1000), y(1000), 0.03 * x(1000));
+  ctx.clip();
+  ctx.drawImage(avatarImage, x(2556), y(200), x(1000), y(1000));
+  ctx.restore();
+
+  // title
+  let maxWidth = x(1600); // Maximum width for the text
+  // Adjust font size to fit within maxWidth
+  /* while (getTextWidth(titletext, `bold ${fontSize}px arial`) > maxWidth) {
+  fontSize++;
+  } */
+
+  // Define text properties
+  ctx.font = `bold ${y(300)}px arial`;
+  ctx.shadowOffsetX = x(-15);
+  ctx.shadowOffsetY = y(15);
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+  ctx.textBaseline = "hanging";
+  ctx.fillStyle = "White";
+  // add text
+  ctx.fillText(`Session #: ${sessionNum}`, x(150), y(150));
+
+  // recruiter
+  ctx.font = `bold ${normalFontSize}px arial`;
+  ctx.fillText(`Recruiter: ${recruiter}`, x(150), y(550));
+
+  // scores
+  const yScoresHeaders = y(800);
+  const yScores = TextSpacement(yScoresHeaders);
+  const spacing = x(700);
+  const xVibeStart = x(150);
+  const xSkillStart = xVibeStart + spacing;
+  const xStrategyStart = xSkillStart + spacing;
+  // headers
+  ctx.fillText("Vibe", xVibeStart, yScoresHeaders);
+  ctx.fillText("Skill", xSkillStart, yScoresHeaders);
+  ctx.fillText("Strategy", xStrategyStart, yScoresHeaders);
+  ctx.font = `${normalFontSize}px arial`;
+  ctx.fillText(vibeScore, xVibeStart, yScores);
+  ctx.fillText(skillScore, xSkillStart, yScores);
+  ctx.fillText(strategyScore, xStrategyStart, yScores);
+  // total score
+  ctx.font = `bold ${normalFontSize}px arial`;
+  ctx.fillText(
+    `Total: ${vibeScore + skillScore + strategyScore}`,
+    x(150),
+    TextSpacement(yScores) + y(50)
+  );
+
+  // comment
+  const yComment = y(1500);
+  ctx.fillText("Comment", x(150), yComment);
+  const lineHeight = y(160); // Height between lines
+
+  // Call the wrapText function to render the wrapped text
+  ctx.font = `${normalFontSize}px arial`;
+  maxWidth = x(3600);
+  wrapText(ctx, comment, x(150), TextSpacement(yComment), maxWidth, lineHeight);
+
+  const buffer = canvas.toBuffer("image/png");
+  return new AttachmentBuilder(buffer, {
+    name: `session_${sessionNum}.png`,
+  });
+}
+
+module.exports = { values, pages, pageYes, makeFile, canvas };
