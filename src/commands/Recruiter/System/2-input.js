@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const allRecruitsSchema = require("../../../Schemas.js/all-recruits");
 const recruitSchema = require("../../../Schemas.js/recruits");
-const { values } = require("../../../variables");
+const { values, canvasSession } = require("../../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -71,8 +71,8 @@ module.exports = {
     const recruitString = interaction.options.getString("recruit");
     const recruit = await interaction.guild.members.fetch(recruitString);
     const recruitID = recruit.id;
-    const recruitName = recruit.displayName;
-    const recruitIcon = recruit.displayAvatarURL();
+    const recruitName = recruit.user.username;
+    const recruitIcon = recruit.displayAvatarURL({ extension: "png" });
 
     const recruiterID = interaction.user.id;
     const recruiterName = interaction.user.username;
@@ -86,8 +86,6 @@ module.exports = {
     const total = vibe + skill + strategy;
 
     const redEmbed = new EmbedBuilder().setColor("#a42a04");
-
-    const greenEmbed = new EmbedBuilder().setColor("#ffd700");
 
     if (!member.roles.cache.has(values.recruiterRole)) {
       redEmbed.setDescription(
@@ -140,21 +138,15 @@ module.exports = {
       fetchReply: true,
     });
 
-    const tryoutDate = new Date(
-      interaction.createdTimestamp
-    ).toLocaleDateString();
-
     if (!data) {
       data = new recruitSchema({
         RecruitID: recruitID,
         RecruitName: recruitName,
-        BeginDate: tryoutDate,
         Tryouts: [
           {
             TryoutNum: tryoutAmount + 1,
             RecruiterID: recruiterID,
             RecruiterName: recruiterName,
-            Date: tryoutDate,
             Vibe: vibe,
             Skill: skill,
             Strategy: strategy,
@@ -168,7 +160,6 @@ module.exports = {
         TryoutNum: tryoutAmount + 1,
         RecruiterID: recruiterID,
         RecruiterName: recruiterName,
-        Date: tryoutDate,
         Vibe: vibe,
         Skill: skill,
         Strategy: strategy,
@@ -187,35 +178,24 @@ module.exports = {
       recruit.roles.add(values.TS3Role);
     }
 
-    const embed = new EmbedBuilder()
-      .setColor("#ffd700")
-      .setTitle(`Session #${tryoutAmount + 1} Input`)
-      .setAuthor({
-        name: `${recruiterName}`,
-        iconURL: `${recruiterIcon}`,
-      })
-      .setThumbnail(`${recruitIcon}`)
-      .addFields(
-        { name: "Recruit", value: `<@${recruitID}>` },
-        { name: "Vibe", value: `${vibe}`, inline: true },
-        { name: "Skill", value: `${skill}`, inline: true },
-        { name: "Strategy", value: `${strategy}`, inline: true },
-        { name: "Comment", value: `${comment}` },
-        { name: "Session Total", value: `${total}` }
-      )
-      .setFooter({
-        text: "Created By: xNightmid",
-        iconURL:
-          "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
-      });
+    const attachment = await canvasSession(
+      recruitName,
+      recruiterName,
+      tryoutAmount + 1,
+      recruitIcon,
+      vibe,
+      skill,
+      strategy,
+      comment
+    );
 
-    await interaction.editReply({ embeds: [embed] });
+    await interaction.editReply({ embeds: [], files: [attachment] });
 
     if (tryoutAmount === 2) {
       let totalTotal =
         data.Tryouts[0].Total + data.Tryouts[1].Total + data.Tryouts[2].Total;
       await interaction.channel.send({
-        content: `**${recruit}** has completed their third session and finished with a total score of **${totalTotal}**. Use </check:1148395148535931030> to see their final data.`,
+        content: `${recruit} has completed their third session and finished with a total score of **${totalTotal}**. Use </check:1148395148535931030> to see their final data.`,
       });
     }
   },

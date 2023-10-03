@@ -65,7 +65,13 @@ const client = new Client({
   ],
   restTimeOffset: 0,
 });
-const { values, pages, pageYes } = require("./variables");
+const {
+  values,
+  pages,
+  pageYes,
+  canvasTotal,
+  canvasSession,
+} = require("./variables");
 const allRecruitsSchema = require("./Schemas.js/all-recruits");
 const recruitSchema = require("./Schemas.js/recruits");
 const eventsSchema = require("./Schemas.js/events");
@@ -1097,8 +1103,8 @@ client.on("interactionCreate", async (interaction) => {
       let recruitIcon;
       if (recruitChoice !== "all") {
         recruit = await interaction.guild.members.fetch(recruitChoice);
-        recruitName = recruit.displayName;
-        recruitIcon = recruit.displayAvatarURL();
+        recruitName = recruit.user.username;
+        recruitIcon = recruit.displayAvatarURL({ extension: "png" });
         data = await recruitSchema.findOne({
           RecruitID: recruitChoice,
         });
@@ -1149,91 +1155,92 @@ client.on("interactionCreate", async (interaction) => {
         );
         return interaction.editReply({ embeds: [embed], components: [row1] });
       } else {
+        const emoji = interaction.guild.emojis.cache.find(
+          (emoji) => emoji.name === "loading"
+        );
+
+        const loadEmbed = new EmbedBuilder()
+          .setColor("#ffd700")
+          .setDescription(`${emoji} Fetching ${recruit}'s data ${emoji}`);
+
+        await interaction.update({
+          embeds: [loadEmbed],
+          files: [],
+        });
+
         let row1;
         if (interaction.message.components.length === 1) {
           row1 = ActionRowBuilder.from(interaction.message.components[0]);
         } else {
           row1 = ActionRowBuilder.from(interaction.message.components[1]);
         }
+
         const tryoutAmount = data.Tryouts.length;
-        let totalTotal;
+        let vibeTotal;
+        let skillTotal;
+        let strategyTotal;
         if (tryoutAmount === 3) {
-          totalTotal =
-            data.Tryouts[0].Total +
-            data.Tryouts[1].Total +
-            data.Tryouts[2].Total;
+          vibeTotal =
+            data.Tryouts[0].Vibe + data.Tryouts[1].Vibe + data.Tryouts[2].Vibe;
+          skillTotal =
+            data.Tryouts[0].Skill +
+            data.Tryouts[1].Skill +
+            data.Tryouts[2].Skill;
+          strategyTotal =
+            data.Tryouts[0].Strategy +
+            data.Tryouts[1].Strategy +
+            data.Tryouts[2].Strategy;
         } else if (tryoutAmount === 2) {
-          totalTotal = data.Tryouts[0].Total + data.Tryouts[1].Total;
+          vibeTotal = data.Tryouts[0].Vibe + data.Tryouts[1].Vibe;
+          skillTotal = data.Tryouts[0].Skill + data.Tryouts[1].Skill;
+          strategyTotal = data.Tryouts[0].Strategy + data.Tryouts[1].Strategy;
         } else {
-          totalTotal = data.Tryouts[0].Total;
+          vibeTotal = data.Tryouts[0].Vibe;
+          skillTotal = data.Tryouts[0].Skill;
+          strategyTotal = data.Tryouts[0].Strategy;
         }
 
         const contents = data.Tryouts;
         let p = [];
+        if (tryoutAmount !== 1) {
+          const attachmentTotal = await canvasTotal(
+            recruitName,
+            recruitIcon,
+            vibeTotal,
+            skillTotal,
+            strategyTotal
+          );
+          p.push(attachmentTotal);
+        }
 
         for (const content of contents) {
           const tryoutNum = content.TryoutNum;
           const recruiterIdData = content.RecruiterID;
-          const tryoutDate = content.Date;
           const vibe = content.Vibe;
           const skill = content.Skill;
           const strategy = content.Strategy;
           const comment = content.Comment;
           const total = content.Total;
 
-          const embed = new EmbedBuilder()
-            .setColor("#ffd700")
-            .setTitle(`Session #${tryoutNum}`)
-            .addFields(
-              {
-                name: "Recruiter",
-                value: `<@${recruiterIdData}>`,
-              },
-              { name: "Vibe", value: `${vibe}`, inline: true },
-              { name: "Skill", value: `${skill}`, inline: true },
-              { name: "Strategy", value: `${strategy}`, inline: true },
-              { name: "Comment", value: `${comment}` },
-              {
-                name: "Session Total:",
-                value: `${total}`,
-              }
-            )
-            .setThumbnail(`${recruitIcon}`);
+          const recruiter = await interaction.guild.members.fetch(
+            recruiterIdData
+          );
+          const recruiterName = recruiter.user.username;
+          const attachmentSession = await canvasSession(
+            recruitName,
+            recruiterName,
+            tryoutNum,
+            recruitIcon,
+            vibe,
+            skill,
+            strategy,
+            comment
+          );
 
-          if (tryoutAmount === 3) {
-            embed.setFooter({
-              text: `Page: ${tryoutNum}/${tryoutAmount + 1}`,
-            });
-          } else if (tryoutAmount === 2) {
-            embed.setFooter({
-              text: `Page: ${tryoutNum}/${tryoutAmount + 1}`,
-            });
-          } else {
-            embed.setFooter({
-              text: `Page: ${tryoutNum}/${tryoutAmount}`,
-            });
-          }
-
-          p.push(embed);
+          p.push(attachmentSession);
         }
 
-        if (tryoutAmount !== 1) {
-          const totalEmbed = new EmbedBuilder()
-            .setColor("#ffd700")
-            .setDescription(`**${totalTotal}**`)
-            .setFooter({
-              text: `Page: ${tryoutAmount + 1}/${tryoutAmount + 1}`,
-            });
-          if (tryoutAmount === 3) {
-            totalEmbed.setTitle("**Final Tryout Score**");
-          } else {
-            totalEmbed.setTitle("**Current Tryout Score**");
-          }
-
-          p.push(totalEmbed);
-        }
-
-        await pageYes(p, interaction, row1, recruitName);
+        await pageYes(p, interaction, row1);
       }
     }
   }

@@ -162,14 +162,15 @@ async function pages(pages, interaction, more) {
   });
 }
 
-async function pageYes(pages, interaction, more, add) {
+async function pageYes(pages, interaction, more) {
   if (!interaction) throw new Error("Provide an interaction argument");
   if (!pages) throw new Error("Provide a page argument");
   if (!Array.isArray(pages)) throw new Error("Pages must be an array");
 
   if (pages.length === 1) {
-    const page = await interaction.update({
-      embeds: pages,
+    const page = await interaction.editReply({
+      files: pages,
+      embeds: [],
       components: [more],
       ephemeral: true,
       fetchReply: true,
@@ -197,17 +198,9 @@ async function pageYes(pages, interaction, more, add) {
   const buttonRow = new ActionRowBuilder().addComponents(prev, none, next);
   let index = 0;
 
-  const loadEmbed = new EmbedBuilder()
-    .setColor("#ffd700")
-    .setDescription(`Loading ${add}'s data...`);
-
-  await interaction.update({
-    embeds: [loadEmbed],
-    components: [buttonRow, more],
-  });
-
   const currentPage = await interaction.editReply({
-    embeds: [pages[index]],
+    files: [pages[index]],
+    embeds: [],
     components: [buttonRow, more],
     ephemeral: true,
     fetchReply: true,
@@ -243,7 +236,7 @@ async function pageYes(pages, interaction, more, add) {
 
     await i
       .update({
-        embeds: [pages[index]],
+        files: [pages[index]],
         components: [buttonRow, more],
       })
       .catch(null);
@@ -262,10 +255,11 @@ async function pageYes(pages, interaction, more, add) {
  */
 // CANVAS
 const { createCanvas, loadImage } = require("canvas");
-async function canvas(
+async function canvasSession(
+  recruitName,
+  recruiter,
   sessionNum,
   avatarUrl,
-  recruiter,
   vibeScore,
   skillScore,
   strategyScore,
@@ -368,12 +362,6 @@ async function canvas(
   ctx.restore();
 
   // title
-  let maxWidth = x(1600); // Maximum width for the text
-  // Adjust font size to fit within maxWidth
-  /* while (getTextWidth(titletext, `bold ${fontSize}px arial`) > maxWidth) {
-  fontSize++;
-  } */
-
   // Define text properties
   ctx.font = `bold ${y(300)}px arial`;
   ctx.shadowOffsetX = x(-15);
@@ -384,6 +372,18 @@ async function canvas(
   ctx.fillStyle = "White";
   // add text
   ctx.fillText(`Session #: ${sessionNum}`, x(150), y(150));
+
+  // recruit name
+  let maxWidth = x(800); // Maximum width for the text
+  // Adjust font size to fit within maxWidth
+  let recruitNameFontSize = y(300);
+  while (
+    getTextWidth(recruitName, `bold ${recruitNameFontSize}px arial`) > maxWidth
+  ) {
+    recruitNameFontSize--;
+  }
+  ctx.font = `bold ${recruitNameFontSize}px arial`;
+  ctx.fillText(recruitName, x(2556 + 100), y(1200 + 50));
 
   // recruiter
   ctx.font = `bold ${normalFontSize}px arial`;
@@ -424,8 +424,300 @@ async function canvas(
 
   const buffer = canvas.toBuffer("image/png");
   return new AttachmentBuilder(buffer, {
-    name: `session_${sessionNum}.png`,
+    name: `${recruitName}-session_${sessionNum}.png`,
+  });
+}
+/**
+ *
+ *
+ *
+ */
+async function canvasTotal(
+  recruitName,
+  avatarUrl,
+  vibeTotalScore,
+  skillTotalScore,
+  strategyTotalScore
+) {
+  const canvas = createCanvas(939, 350);
+  const ctx = canvas.getContext("2d");
+
+  function x(base) {
+    const ratio = base / 3756;
+    return canvas.width * ratio;
+  }
+
+  function y(base) {
+    const ratio = base / 1400;
+    return canvas.height * ratio;
+  }
+
+  const normalFontSize = y(150);
+
+  function TextSpacement(base) {
+    return base + y(200);
+  }
+
+  function roundedRect(ctx, x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  // Function to calculate the text width
+  function getTextWidth(text, font) {
+    ctx.font = font;
+    return ctx.measureText(text).width;
+  }
+
+  // background
+  const bgImage = await loadImage("./src/vines.png");
+  const hRatio = canvas.width / bgImage.width;
+  const vRatio = canvas.height / bgImage.height;
+  const ratio = Math.max(hRatio, vRatio);
+  const centerShift_x = (canvas.width - bgImage.width * ratio) / 2;
+  const centerShift_y = (canvas.height - bgImage.height * ratio) / 2;
+  ctx.drawImage(
+    bgImage,
+    0,
+    0,
+    bgImage.width,
+    bgImage.height,
+    centerShift_x,
+    centerShift_y,
+    bgImage.width * ratio,
+    bgImage.height * ratio
+  );
+  ctx.rect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.70)";
+  ctx.fill();
+
+  //avatar
+  const avatarImage = await loadImage(avatarUrl);
+
+  ctx.save();
+  roundedRect(ctx, x(150), y(150), x(1100), y(1100), 0.03 * x(1100));
+  ctx.clip();
+  ctx.fillStyle = "rgba(255, 255, 255, 1)";
+  ctx.fillRect(x(150), y(150), x(1100), y(1100));
+  ctx.restore();
+
+  ctx.save();
+  roundedRect(ctx, x(200), y(200), x(1000), y(1000), 0.03 * x(1000));
+  ctx.clip();
+  ctx.drawImage(avatarImage, x(200), y(200), x(1000), y(1000));
+  ctx.restore();
+
+  // title
+  // Define text properties
+  ctx.shadowOffsetX = x(-15);
+  ctx.shadowOffsetY = y(15);
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+  ctx.textBaseline = "hanging";
+  ctx.fillStyle = "White";
+  // add text
+  let maxWidth = x(2000);
+  let titleFontSize = y(300);
+  while (
+    getTextWidth(`${recruitName}'s Totals`, `bold ${titleFontSize}px arial`) >
+    maxWidth
+  ) {
+    titleFontSize--;
+  }
+  ctx.font = `bold ${titleFontSize}px arial`;
+  ctx.fillText(`${recruitName}'s Totals`, x(1350), y(225));
+
+  // total points
+  ctx.font = `bold ${normalFontSize}px arial`;
+  ctx.fillText(
+    `Total Points: ${vibeTotalScore + skillTotalScore + strategyTotalScore}`,
+    x(1350),
+    y(525)
+  );
+
+  // inidivisual totals
+  const yScoresHeaders = y(775);
+  const yScores = TextSpacement(yScoresHeaders);
+  const spacing = x(700);
+  const xVibeStart = x(1350);
+  const xSkillStart = xVibeStart + spacing;
+  const xStrategyStart = xSkillStart + spacing;
+  // headers
+  ctx.fillText("Vibe", xVibeStart, yScoresHeaders);
+  ctx.fillText("Skill", xSkillStart, yScoresHeaders);
+  ctx.fillText("Strategy", xStrategyStart, yScoresHeaders);
+  ctx.font = `${normalFontSize}px arial`;
+  ctx.fillText(vibeTotalScore, xVibeStart, yScores);
+  ctx.fillText(skillTotalScore, xSkillStart, yScores);
+  ctx.fillText(strategyTotalScore, xStrategyStart, yScores);
+
+  const buffer = canvas.toBuffer("image/png");
+  return new AttachmentBuilder(buffer, {
+    name: `${recruitName}-totals_data.png`,
+  });
+}
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+async function canvasStatus(
+  recruitName,
+  avatarUrl,
+  vibeTotalScore,
+  skillTotalScore,
+  strategyTotalScore,
+  status
+) {
+  const canvas = createCanvas(939, 350);
+  const ctx = canvas.getContext("2d");
+
+  function x(base) {
+    const ratio = base / 3756;
+    return canvas.width * ratio;
+  }
+
+  function y(base) {
+    const ratio = base / 1400;
+    return canvas.height * ratio;
+  }
+
+  const normalFontSize = y(150);
+
+  function TextSpacement(base) {
+    return base + y(200);
+  }
+
+  function roundedRect(ctx, x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  // Function to calculate the text width
+  function getTextWidth(text, font) {
+    ctx.font = font;
+    return ctx.measureText(text).width;
+  }
+
+  // background
+  const bgImage = await loadImage("./src/vines.png");
+  const hRatio = canvas.width / bgImage.width;
+  const vRatio = canvas.height / bgImage.height;
+  const ratio = Math.max(hRatio, vRatio);
+  const centerShift_x = (canvas.width - bgImage.width * ratio) / 2;
+  const centerShift_y = (canvas.height - bgImage.height * ratio) / 2;
+  ctx.drawImage(
+    bgImage,
+    0,
+    0,
+    bgImage.width,
+    bgImage.height,
+    centerShift_x,
+    centerShift_y,
+    bgImage.width * ratio,
+    bgImage.height * ratio
+  );
+  ctx.rect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.70)";
+  ctx.fill();
+
+  //avatar
+  const avatarImage = await loadImage(avatarUrl);
+
+  ctx.save();
+  roundedRect(ctx, x(150), y(150), x(1100), y(1100), 0.03 * x(1100));
+  ctx.clip();
+  ctx.fillStyle = "rgba(255, 255, 255, 1)";
+  ctx.fillRect(x(150), y(150), x(1100), y(1100));
+  ctx.restore();
+
+  ctx.save();
+  roundedRect(ctx, x(200), y(200), x(1000), y(1000), 0.03 * x(1000));
+  ctx.clip();
+  ctx.drawImage(avatarImage, x(200), y(200), x(1000), y(1000));
+  ctx.restore();
+
+  // title
+  // Define text properties
+  ctx.shadowOffsetX = x(-15);
+  ctx.shadowOffsetY = y(15);
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = "rgba(0, 0, 0, 0.7)";
+  ctx.textBaseline = "hanging";
+  ctx.fillStyle = "White";
+  // add text
+  let maxWidth = x(2000);
+  let titleFontSize = y(300);
+  while (
+    getTextWidth(`${recruitName}'s Tryouts`, `bold ${titleFontSize}px arial`) >
+    maxWidth
+  ) {
+    titleFontSize--;
+  }
+  ctx.font = `bold ${titleFontSize}px arial`;
+  ctx.fillText(`${recruitName}'s Tryouts`, x(1350), y(100));
+
+  // total points
+  ctx.font = `bold ${normalFontSize}px arial`;
+  ctx.fillText(
+    `Total Points: ${vibeTotalScore + skillTotalScore + strategyTotalScore}`,
+    x(1350),
+    y(400)
+  );
+
+  // inidivisual totals
+  const yScoresHeaders = y(650);
+  const yScores = TextSpacement(yScoresHeaders);
+  const spacing = x(700);
+  const xVibeStart = x(1350);
+  const xSkillStart = xVibeStart + spacing;
+  const xStrategyStart = xSkillStart + spacing;
+  // headers
+  ctx.fillText("Vibe", xVibeStart, yScoresHeaders);
+  ctx.fillText("Skill", xSkillStart, yScoresHeaders);
+  ctx.fillText("Strategy", xStrategyStart, yScoresHeaders);
+  ctx.font = `${normalFontSize}px arial`;
+  ctx.fillText(vibeTotalScore, xVibeStart, yScores);
+  ctx.fillText(skillTotalScore, xSkillStart, yScores);
+  ctx.fillText(strategyTotalScore, xStrategyStart, yScores);
+
+  // status
+  ctx.font = `bold ${normalFontSize}px arial`;
+  ctx.fillText(`Status: ${status}`, x(1350), yScores + y(250));
+
+  const buffer = canvas.toBuffer("image/png");
+  return new AttachmentBuilder(buffer, {
+    name: `${recruitName}-totals_data.png`,
   });
 }
 
-module.exports = { values, pages, pageYes, makeFile, canvas };
+module.exports = {
+  values,
+  pages,
+  pageYes,
+  makeFile,
+  canvasSession,
+  canvasTotal,
+  canvasStatus,
+};

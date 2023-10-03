@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const recruitSchema = require("../../../Schemas.js/recruits");
-const { values } = require("../../../variables");
+const { values, canvasStatus, canvasSession } = require("../../../variables");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -42,19 +42,6 @@ module.exports = {
 
   async execute(interaction, client) {
     const member = interaction.member;
-
-    const passed = interaction.options.getBoolean("passed");
-
-    const recruitString = interaction.options.getString("recruit");
-
-    const recruit = await interaction.guild.members.fetch(recruitString);
-    const recruitID = recruit.id;
-    const recruitName = recruit.displayName;
-
-    const data = await recruitSchema.findOne({
-      RecruitID: recruitID,
-    });
-
     if (!member.roles.cache.has(values.recruiterRole))
       return interaction.reply({
         content: "You do not have permsission to use this command",
@@ -66,6 +53,25 @@ module.exports = {
         ephemeral: true,
       });
     }
+
+    let status = interaction.options.getBoolean("passed");
+    if (status === false) {
+      status = "Denied";
+    } else {
+      status = "Accepted";
+    }
+
+    const recruitString = interaction.options.getString("recruit");
+
+    const recruit = await interaction.guild.members.fetch(recruitString);
+    const recruitID = recruit.id;
+    const recruitName = recruit.user.username;
+    const recruitIcon = recruit.user.avatarURL({ extension: "png" });
+
+    const data = await recruitSchema.findOne({
+      RecruitID: recruitID,
+    });
+
     if (!recruit.roles.cache.has(values.recruitRole))
       return interaction.reply({
         content: `${recruit} is not a recruit`,
@@ -77,68 +83,77 @@ module.exports = {
         content: `${recruitName} is not a recruit, or does not have any tryout sessions`,
         ephemeral: true,
       });
-    if (data.Tryouts.length !== 3)
+    if (data.Tryouts.length !== 3) {
       return interaction.reply({
         content: `**${recruitName}** has not completed their tryout. They currently have **${data.Tryouts.length}** sessions completed.`,
       });
+    }
 
-    const totalTotal =
-      data.Tryouts[0].Total + data.Tryouts[1].Total + data.Tryouts[2].Total;
+    const emoji = interaction.guild.emojis.cache.find(
+      (emoji) => emoji.name === "loading"
+    );
+
+    const loadEmbed = new EmbedBuilder()
+      .setColor("#ffd700")
+      .setDescription(`${emoji} Completing ${recruit}'s tryout ${emoji}`);
+
+    const final = await interaction.reply({
+      embeds: [loadEmbed],
+      fetchReply: true,
+    });
+
+    const vibeTotal =
+      data.Tryouts[0].Vibe + data.Tryouts[1].Vibe + data.Tryouts[2].Vibe;
+    const skillTotal =
+      data.Tryouts[0].Skill + data.Tryouts[1].Skill + data.Tryouts[2].Skill;
+    const strategyTotal =
+      data.Tryouts[0].Strategy +
+      data.Tryouts[1].Strategy +
+      data.Tryouts[2].Strategy;
 
     const contents = data.Tryouts;
 
-    let embeds = [];
+    let attachments = [];
+    const attachmentStatus = await canvasStatus(
+      recruitName,
+      recruitIcon,
+      vibeTotal,
+      skillTotal,
+      strategyTotal,
+      status
+    );
+    attachments.push(attachmentStatus);
     for (const content of contents) {
       const tryoutNum = content.TryoutNum;
       const recruiterNameData = content.RecruiterID;
-      const tryoutDate = content.Date;
       const vibe = content.Vibe;
       const skill = content.Skill;
       const strategy = content.Strategy;
       const comment = content.Comment;
       const total = content.Total;
 
-      const embed = new EmbedBuilder()
-        .setColor("#ffd700")
-        .setTitle(`**Session #${tryoutNum}**`)
-        .addFields(
-          {
-            name: "Recruiter",
-            value: `<@${recruiterNameData}>`,
-          },
-          { name: "Vibe", value: `${vibe}`, inline: true },
-          { name: "Skill", value: `${skill}`, inline: true },
-          { name: "Strategy", value: `${strategy}`, inline: true },
-          { name: "Comment", value: `${comment}` },
-          { name: "Session Total:", value: `${total}` }
-        );
-      embeds.push(embed);
+      const recruiter = await interaction.guild.members.fetch(
+        recruiterNameData
+      );
+      const recruiterName = recruiter.user.username;
+      const attachmentSession = await canvasSession(
+        recruitName,
+        recruiterName,
+        tryoutNum,
+        recruitIcon,
+        vibe,
+        skill,
+        strategy,
+        comment
+      );
+      attachments.push(attachmentSession);
     }
-    let status;
-    if (passed === false) {
-      status = "Denied";
-    } else {
-      status = "Accepted";
-    }
-    const totalEmbed = new EmbedBuilder()
-      .setColor("#ffd700")
-      .setTitle("Final Tryout Score and Status")
-      .addFields(
-        { name: "Tryout Total", value: `${totalTotal}`, inline: true },
-        { name: "Tryout Status", value: `**${status}**`, inline: true }
-      )
-      .setFooter({
-        text: "Created By: xNightmid",
-        iconURL:
-          "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
-      });
-    embeds.push(totalEmbed);
 
     data.delete();
 
-    const final = await interaction.reply({
-      embeds: embeds,
-      fetchReply: true,
+    await interaction.editReply({
+      files: attachments,
+      embeds: [],
     });
     final.pin();
 
@@ -156,7 +171,7 @@ module.exports = {
         iconURL:
           "https://cdn.discordapp.com/attachments/1127095161592221789/1127324283421610114/NMD-logo_less-storage.png",
       });
-    if (passed === false) {
+    if (status === "Denied") {
       dmEmbed.setDescription(
         "We are sorry to say that you have been denied of becoming a member after completing your tryout"
       );
