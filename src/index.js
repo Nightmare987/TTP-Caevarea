@@ -833,13 +833,8 @@ client.on("interactionCreate", async (interaction) => {
         }
       });
 
-      const embed = new EmbedBuilder()
-        .setColor("Yellow")
-        .setDescription("This error file has been deleted");
-      interaction.update({
-        embeds: [message.embeds[0], embed],
-        components: [],
-      });
+      await message.delete();
+
       console.log(
         `\x1b[1m\x1b[32mError file deleted:   ${path.slice(2)}\x1b[0m`
       );
