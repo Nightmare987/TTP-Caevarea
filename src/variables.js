@@ -254,10 +254,9 @@ async function pageYes(pages, interaction, more) {
  *
  */
 // CANVAS
-const { createCanvas, loadImage } = require("canvas");
-const Font = require("canvas").registerFont("./src/arial-font.ttf", {
-  family: "MyArial",
-});
+const { createCanvas, loadImage, registerFont } = require("canvas");
+registerFont("./src/arial-font-normal.ttf", { family: "NormalArial" });
+registerFont("./src/arial-font-bold.ttf", { family: "BoldArial" });
 
 async function canvasSession(
   recruitName,
@@ -367,7 +366,7 @@ async function canvasSession(
 
   // title
   // Define text properties
-  ctx.font = `bold ${y(300)}px MyArial`;
+  ctx.font = `bold ${y(300)}px BoldArial`;
   ctx.shadowOffsetX = x(-15);
   ctx.shadowOffsetY = y(15);
   ctx.shadowBlur = 0;
@@ -382,16 +381,16 @@ async function canvasSession(
   // Adjust font size to fit within maxWidth
   let recruitNameFontSize = y(300);
   while (
-    getTextWidth(recruitName, `bold ${recruitNameFontSize}px MyArial`) >
+    getTextWidth(recruitName, `bold ${recruitNameFontSize}px BoldArial`) >
     maxWidth
   ) {
     recruitNameFontSize--;
   }
-  ctx.font = `bold ${recruitNameFontSize}px MyArial`;
+  ctx.font = `bold ${recruitNameFontSize}px BoldArial`;
   ctx.fillText(recruitName, x(2556 + 100), y(1200 + 50));
 
   // recruiter
-  ctx.font = `bold ${normalFontSize}px MyArial`;
+  ctx.font = `bold ${normalFontSize}px BoldArial`;
   ctx.fillText(`Recruiter: ${recruiter}`, x(150), y(550));
 
   // scores
@@ -405,12 +404,12 @@ async function canvasSession(
   ctx.fillText("Vibe", xVibeStart, yScoresHeaders);
   ctx.fillText("Skill", xSkillStart, yScoresHeaders);
   ctx.fillText("Strategy", xStrategyStart, yScoresHeaders);
-  ctx.font = `${normalFontSize}px MyArial`;
+  ctx.font = `${normalFontSize}px NormalArial`;
   ctx.fillText(vibeScore, xVibeStart, yScores);
   ctx.fillText(skillScore, xSkillStart, yScores);
   ctx.fillText(strategyScore, xStrategyStart, yScores);
   // total score
-  ctx.font = `bold ${normalFontSize}px MyArial`;
+  ctx.font = `bold ${normalFontSize}px BoldArial`;
   ctx.fillText(
     `Total: ${vibeScore + skillScore + strategyScore}`,
     x(150),
@@ -423,7 +422,7 @@ async function canvasSession(
   const lineHeight = y(160); // Height between lines
 
   // Call the wrapText function to render the wrapped text
-  ctx.font = `${normalFontSize}px MyArial`;
+  ctx.font = `${normalFontSize}px NormalArial`;
   maxWidth = x(3600);
   wrapText(ctx, comment, x(150), TextSpacement(yComment), maxWidth, lineHeight);
 
@@ -532,16 +531,18 @@ async function canvasTotal(
   let maxWidth = x(2000);
   let titleFontSize = y(300);
   while (
-    getTextWidth(`${recruitName}'s Totals`, `bold ${titleFontSize}px MyArial`) >
-    maxWidth
+    getTextWidth(
+      `${recruitName}'s Totals`,
+      `bold ${titleFontSize}px NormalArial`
+    ) > maxWidth
   ) {
     titleFontSize--;
   }
-  ctx.font = `bold ${titleFontSize}px MyArial`;
+  ctx.font = `bold ${titleFontSize}px BoldArial`;
   ctx.fillText(`${recruitName}'s Totals`, x(1350), y(225));
 
   // total points
-  ctx.font = `bold ${normalFontSize}px MyArial`;
+  ctx.font = `bold ${normalFontSize}px BoldArial`;
   ctx.fillText(
     `Total Points: ${vibeTotalScore + skillTotalScore + strategyTotalScore}`,
     x(1350),
@@ -559,7 +560,7 @@ async function canvasTotal(
   ctx.fillText("Vibe", xVibeStart, yScoresHeaders);
   ctx.fillText("Skill", xSkillStart, yScoresHeaders);
   ctx.fillText("Strategy", xStrategyStart, yScoresHeaders);
-  ctx.font = `${normalFontSize}px MyArial`;
+  ctx.font = `${normalFontSize}px NormalArial`;
   ctx.fillText(vibeTotalScore, xVibeStart, yScores);
   ctx.fillText(skillTotalScore, xSkillStart, yScores);
   ctx.fillText(strategyTotalScore, xStrategyStart, yScores);
@@ -677,16 +678,16 @@ async function canvasStatus(
   while (
     getTextWidth(
       `${recruitName}'s Tryouts`,
-      `bold ${titleFontSize}px MyArial`
+      `bold ${titleFontSize}px BoldArial`
     ) > maxWidth
   ) {
     titleFontSize--;
   }
-  ctx.font = `bold ${titleFontSize}px MyArial`;
+  ctx.font = `bold ${titleFontSize}px BoldArial`;
   ctx.fillText(`${recruitName}'s Tryouts`, x(1350), y(100));
 
   // total points
-  ctx.font = `bold ${normalFontSize}px MyArial`;
+  ctx.font = `bold ${normalFontSize}px BoldArial`;
   ctx.fillText(
     `Total Points: ${vibeTotalScore + skillTotalScore + strategyTotalScore}`,
     x(1350),
@@ -704,13 +705,13 @@ async function canvasStatus(
   ctx.fillText("Vibe", xVibeStart, yScoresHeaders);
   ctx.fillText("Skill", xSkillStart, yScoresHeaders);
   ctx.fillText("Strategy", xStrategyStart, yScoresHeaders);
-  ctx.font = `${normalFontSize}px MyArial`;
+  ctx.font = `${normalFontSize}px NormalArial`;
   ctx.fillText(vibeTotalScore, xVibeStart, yScores);
   ctx.fillText(skillTotalScore, xSkillStart, yScores);
   ctx.fillText(strategyTotalScore, xStrategyStart, yScores);
 
   // status
-  ctx.font = `bold ${normalFontSize}px MyArial`;
+  ctx.font = `bold ${normalFontSize}px BoldArial`;
   ctx.fillText(`Status: ${status}`, x(1350), yScores + y(250));
 
   const buffer = canvas.toBuffer("image/png");
