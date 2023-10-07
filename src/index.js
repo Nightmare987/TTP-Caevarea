@@ -1148,7 +1148,11 @@ client.on("interactionCreate", async (interaction) => {
             .setMaxValues(1)
             .addOptions(options)
         );
-        return interaction.editReply({ embeds: [embed], components: [row1] });
+        return interaction.editReply({
+          embeds: [embed],
+          components: [row1],
+          files: [],
+        });
       } else {
         const emoji = interaction.guild.emojis.cache.find(
           (emoji) => emoji.name === "loading"
