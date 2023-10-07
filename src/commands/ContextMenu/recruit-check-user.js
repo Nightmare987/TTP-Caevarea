@@ -16,13 +16,12 @@ const {
 
 module.exports = {
   data: new ContextMenuCommandBuilder()
-    .setName("Check")
+    .setName("Check Recruit")
     .setType(ApplicationCommandType.User),
 
   async execute(interaction) {
     const member = interaction.member;
-    const userID = interaction.targetId;
-    const user = await interaction.guild.members.fetch(userID);
+    const user = interaction.targetMember;
     const userName = user.user.username;
     if (!member.roles.cache.has(values.recruiterRole)) {
       return interaction.reply({
@@ -37,7 +36,7 @@ module.exports = {
       });
     }
 
-    const data = await recruitSchema.findOne({ RecruitID: userID });
+    const data = await recruitSchema.findOne({ RecruitID: user.id });
     if (!data) {
       return interaction.reply({
         content: "This recruit does not have any sessions",
