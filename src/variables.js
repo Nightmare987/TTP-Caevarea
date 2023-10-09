@@ -12,6 +12,7 @@ const values = {
   GamesChannel: "1144021177254281406",
   EventsCategory: "868243382810574859",
   EventsLogChannel: "1144022193873891429",
+  WelcomeChannel: "1133486425887756379",
 };
 
 const fs = require("fs");
@@ -720,6 +721,125 @@ async function canvasStatus(
   });
 }
 
+async function canvasWelcome(member) {
+  const canvas = createCanvas(1000, 500);
+  const ctx = canvas.getContext("2d");
+
+  function roundedRect(ctx, x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  // Function to calculate the text width
+  function getTextWidth(text, font) {
+    ctx.font = font;
+    return ctx.measureText(text).width;
+  }
+
+  // background
+  const bgImage = await loadImage("./src/vines.png");
+  const hRatio = canvas.width / bgImage.width;
+  const vRatio = canvas.height / bgImage.height;
+  const ratio = Math.max(hRatio, vRatio);
+  const centerShift_x = (canvas.width - bgImage.width * ratio) / 2;
+  const centerShift_y = (canvas.height - bgImage.height * ratio) / 2;
+  ctx.drawImage(
+    bgImage,
+    0,
+    0,
+    bgImage.width,
+    bgImage.height,
+    centerShift_x,
+    centerShift_y,
+    bgImage.width * ratio,
+    bgImage.height * ratio
+  );
+
+  const ttpLogo = await loadImage("./src/ttp-logo.png");
+  ctx.drawImage(ttpLogo, 10, 10, 450, 300);
+
+  ctx.rect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "rgba(0, 0, 0, 0.70)";
+  ctx.fill();
+
+  //avatar
+  const avatarImage = await loadImage(
+    member.user.avatarURL({ extension: "png" })
+  );
+  const avatarSize = 250;
+  const avatarSpacing = avatarSize * 0.03;
+  const avatarOutlineY = 50;
+  const avatarOutlineX = canvas.width / 2 - avatarSize / 2;
+  const outlineFinishY = avatarOutlineY + (avatarSize + avatarSpacing * 2);
+  ctx.save();
+  roundedRect(
+    ctx,
+    avatarOutlineX,
+    avatarOutlineY,
+    avatarSize + avatarSpacing * 2,
+    avatarSize + avatarSpacing * 2,
+    (avatarSize + avatarSpacing) / 2
+  );
+  ctx.clip();
+  ctx.fillStyle = "rgba(255, 255, 255, 1)";
+  ctx.fillRect(
+    avatarOutlineX,
+    avatarOutlineY,
+    avatarSize + avatarSpacing * 2,
+    avatarSize + avatarSpacing * 2
+  );
+  ctx.restore();
+
+  ctx.save();
+  roundedRect(
+    ctx,
+    avatarOutlineX + avatarSpacing,
+    avatarOutlineY + avatarSpacing,
+    avatarSize,
+    avatarSize,
+    avatarSize / 2
+  );
+  ctx.clip();
+  ctx.drawImage(
+    avatarImage,
+    avatarOutlineX + avatarSpacing,
+    avatarOutlineY + avatarSpacing,
+    avatarSize,
+    avatarSize
+  );
+  ctx.restore();
+
+  // text
+  ctx.textAlign = "center";
+  ctx.textBaseline = "hanging";
+  ctx.fillStyle = "White";
+  ctx.font = `40px BoldArial`;
+  ctx.fillText(
+    `${member.user.username} has joined the server`,
+    canvas.width / 2,
+    outlineFinishY + 30
+  );
+  ctx.fillStyle = "rgb(150, 150, 150)";
+  ctx.fillText(
+    `Member #${member.guild.memberCount}`,
+    canvas.width / 2,
+    outlineFinishY + 30 + 40 + 20
+  );
+
+  const buffer = canvas.toBuffer("image/png");
+  return new AttachmentBuilder(buffer, {
+    name: `test.png`,
+  });
+}
+
 module.exports = {
   values,
   pages,
@@ -728,4 +848,5 @@ module.exports = {
   canvasSession,
   canvasTotal,
   canvasStatus,
+  canvasWelcome,
 };

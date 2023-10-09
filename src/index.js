@@ -71,6 +71,7 @@ const {
   pageYes,
   canvasTotal,
   canvasSession,
+  canvasWelcome,
 } = require("./variables");
 const allRecruitsSchema = require("./Schemas.js/all-recruits");
 const recruitSchema = require("./Schemas.js/recruits");
@@ -145,7 +146,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
  *
  *
  */
-// on guild join
+// on bot guild join
 client.on("guildCreate", async (guild) => {
   const role = await guild.roles.create({
     name: "Better Caevarea",
@@ -173,6 +174,34 @@ client.on("guildCreate", async (guild) => {
   });
 
   guild.members.addRole({ user: "1127094913746612304", role: role });
+});
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+// on member guild join
+client.on("guildMemberAdd", async (member) => {
+  const welcomeAttachment = await canvasWelcome(member);
+  const welcomeChannel = await member.guild.channels.fetch(
+    values.WelcomeChannel
+  );
+  welcomeChannel.send({ files: [welcomeAttachment] });
+});
+// on member guild leave
+client.on("guildMemberRemove", async (member) => {
+  const welcomeChannel = await member.guild.channels.fetch(
+    values.WelcomeChannel
+  );
+  welcomeChannel.send({
+    content: `**${member.user.username}** has left the server`,
+  });
 });
 /**
  *
