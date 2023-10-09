@@ -188,6 +188,7 @@ client.on("guildCreate", async (guild) => {
  */
 // on member guild join
 client.on("guildMemberAdd", async (member) => {
+  member.roles.add("870394957746307072");
   const welcomeAttachment = await canvasWelcome(member);
   const welcomeChannel = await member.guild.channels.fetch(
     values.WelcomeChannel

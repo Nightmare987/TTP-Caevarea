@@ -836,7 +836,7 @@ async function canvasWelcome(member) {
 
   const buffer = canvas.toBuffer("image/png");
   return new AttachmentBuilder(buffer, {
-    name: `test.png`,
+    name: `${member.user.username}-welcome-card.png`,
   });
 }
 
