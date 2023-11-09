@@ -135,6 +135,7 @@ module.exports = {
       .setDescription(`${emoji} Inputting data for ${recruit} ${emoji}`);
     await interaction.reply({
       embeds: [creatingEmbed],
+      ephemeral: true,
       fetchReply: true,
     });
 
@@ -189,7 +190,8 @@ module.exports = {
       comment
     );
 
-    await interaction.editReply({ embeds: [], files: [attachment] });
+    await interaction.deleteReply();
+    await interaction.channel.send({ files: [attachment] });
 
     if (tryoutAmount === 2) {
       let totalTotal =
