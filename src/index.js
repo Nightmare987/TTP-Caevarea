@@ -291,6 +291,7 @@ client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
       RecruitID: newMember.user.id,
       RecruitName: newMember.user.username,
     });
+    newMember.roles.add(values.tryoutsHeaderRole);
     if (
       executorID !== "1127094913746612304" &&
       targetID !== "1127094913746612304"
